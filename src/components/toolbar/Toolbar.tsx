@@ -1,7 +1,9 @@
-import { useRef, useState, useEffect } from 'react'
-import { Save, Download, Upload, Trash2, Undo2, Redo2, ZoomIn, ZoomOut, Maximize2, Grid3X3, Sun, Moon, GitBranch } from 'lucide-react'
-import { useReactFlow } from '@xyflow/react'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { Save, Download, Upload, Trash2, Undo2, Redo2, ZoomIn, ZoomOut, Maximize2, Grid3X3, Sun, Moon, GitBranch, ImageDown } from 'lucide-react'
+import { useReactFlow, getNodesBounds } from '@xyflow/react'
+import { toPng } from 'html-to-image'
 import { useStore } from '@/store/useStore'
+import { toast } from '@/lib/toast'
 
 function Btn({ icon, label, onClick, variant = 'default', disabled }: {
   icon: React.ReactNode; label: string; onClick: () => void; variant?: 'default' | 'danger' | 'active'; disabled?: boolean
@@ -46,6 +48,59 @@ export function Toolbar() {
   const toggleTheme    = useStore((s) => s.toggleTheme)
 
   const rf = useReactFlow()
+
+  const exportPng = useCallback(async () => {
+    const nodes = useStore.getState().nodes
+    const projectName = useStore.getState().projectName
+    if (nodes.length === 0) { toast('Aucun nœud à exporter', 'warning'); return }
+
+    const viewport = document.querySelector<HTMLElement>('.react-flow__viewport')
+    if (!viewport) return
+
+    const PADDING = 30
+    const ZOOM = 1.5   // render at 1.5× for crispness, keeps size reasonable
+
+    const bounds = getNodesBounds(nodes)
+
+    // Image size = exact content size × zoom + padding on each side
+    const W = Math.round(bounds.width  * ZOOM + PADDING * 2)
+    const H = Math.round(bounds.height * ZOOM + PADDING * 2)
+
+    // Translate so top-left of content lands at (PADDING, PADDING)
+    const tx = -bounds.x * ZOOM + PADDING
+    const ty = -bounds.y * ZOOM + PADDING
+
+    try {
+      // Hide handles during capture
+      const style = document.createElement('style')
+      style.id = 'hlab-export-hide'
+      style.textContent = '.react-flow__handle { display: none !important; }'
+      document.head.appendChild(style)
+
+      const dataUrl = await toPng(viewport, {
+        backgroundColor: '#0d1117',
+        width: W,
+        height: H,
+        pixelRatio: 2,
+        style: {
+          width:           `${W}px`,
+          height:          `${H}px`,
+          transform:       `translate(${tx}px, ${ty}px) scale(${ZOOM})`,
+          transformOrigin: 'top left',
+        },
+      })
+      const a = document.createElement('a')
+      const slug = projectName.replace(/\s+/g, '-').toLowerCase()
+      a.href = dataUrl
+      a.download = `${slug}.png`
+      a.click()
+      document.getElementById('hlab-export-hide')?.remove()
+      toast(`Export PNG — ${projectName}`, 'success')
+    } catch {
+      document.getElementById('hlab-export-hide')?.remove()
+      toast('Erreur export PNG', 'error')
+    }
+  }, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -93,9 +148,10 @@ export function Toolbar() {
       </span>
       <Sep />
 
-      <Btn icon={<Save size={15}/>}     label="Save (⌘S)"    onClick={saveDiagram} />
-      <Btn icon={<Download size={15}/>} label="Export JSON"  onClick={exportDiagram} disabled={nodeCount === 0} />
-      <Btn icon={<Upload size={15}/>}   label="Import JSON"  onClick={() => fileInputRef.current?.click()} />
+      <Btn icon={<Save size={15}/>}      label="Save (⌘S)"    onClick={saveDiagram} />
+      <Btn icon={<Download size={15}/>}  label="Export JSON"  onClick={exportDiagram} disabled={nodeCount === 0} />
+      <Btn icon={<ImageDown size={15}/>} label="Export PNG"   onClick={exportPng}    disabled={nodeCount === 0} />
+      <Btn icon={<Upload size={15}/>}    label="Import JSON"  onClick={() => fileInputRef.current?.click()} />
       <Btn icon={<Trash2 size={15}/>}   label="Clear"        onClick={() => nodeCount > 0 && window.confirm(`Clear ${nodeCount} nodes?`) && clearDiagram()} variant="danger" disabled={nodeCount === 0} />
       <Sep />
 

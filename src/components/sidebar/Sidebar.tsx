@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { Search, ChevronRight, Cpu } from "lucide-react"
+import { Search, ChevronRight, Cpu, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { SIDEBAR_SECTIONS, NODE_META } from "@/types"
 import type { NodeType, SidebarSection } from "@/types"
 import { useStore } from "@/store/useStore"
@@ -85,30 +86,57 @@ function PaletteItemRow({ type }: { type: NodeType }) {
   }
 
   return (
-    <div
-      draggable
-      onDragStart={onDragStart}
-      className="flex items-center gap-2.5 px-2 py-2 rounded cursor-grab active:cursor-grabbing
-        hover:bg-[#1c2128] transition-colors select-none group"
-      title={meta.description}
-    >
-      <div
-        className="flex items-center justify-center w-7 h-7 rounded shrink-0"
-        style={{ background: `${meta.color}15`, border: `1px solid ${meta.color}30` }}
-      >
-        <NodeIcon type={type} color={meta.color} />
-      </div>
-      <span className="text-[13px] text-[#8b949e] group-hover:text-[#c9d1d9] transition-colors">
-        {meta.label}
-      </span>
-      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        <svg width="7" height="10" viewBox="0 0 7 10" fill="#484f58">
-          <circle cx="1.5" cy="1.5" r="1" /><circle cx="5.5" cy="1.5" r="1" />
-          <circle cx="1.5" cy="5" r="1" /><circle cx="5.5" cy="5" r="1" />
-          <circle cx="1.5" cy="8.5" r="1" /><circle cx="5.5" cy="8.5" r="1" />
-        </svg>
-      </div>
-    </div>
+    <Tooltip.Root delayDuration={400}>
+      <Tooltip.Trigger asChild>
+        <div
+          draggable
+          onDragStart={onDragStart}
+          className="flex items-center gap-2.5 px-2 py-2 rounded cursor-grab active:cursor-grabbing
+            hover:bg-[#1c2128] transition-colors select-none group"
+        >
+          <div
+            className="flex items-center justify-center w-7 h-7 rounded shrink-0"
+            style={{ background: `${meta.color}15`, border: `1px solid ${meta.color}30` }}
+          >
+            <NodeIcon type={type} color={meta.color} />
+          </div>
+          <span className="text-[13px] text-[#8b949e] group-hover:text-[#c9d1d9] transition-colors">
+            {meta.label}
+          </span>
+          <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            <svg width="7" height="10" viewBox="0 0 7 10" fill="#484f58">
+              <circle cx="1.5" cy="1.5" r="1" /><circle cx="5.5" cy="1.5" r="1" />
+              <circle cx="1.5" cy="5" r="1" /><circle cx="5.5" cy="5" r="1" />
+              <circle cx="1.5" cy="8.5" r="1" /><circle cx="5.5" cy="8.5" r="1" />
+            </svg>
+          </div>
+        </div>
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          side="right"
+          sideOffset={10}
+          style={{
+            background: '#161b22',
+            border: `1px solid ${meta.color}40`,
+            borderRadius: 6,
+            padding: '7px 11px',
+            fontFamily: '"JetBrains Mono", monospace',
+            maxWidth: 220,
+            zIndex: 9999,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 600, color: meta.color, marginBottom: 3 }}>
+            {meta.label}
+          </div>
+          <div style={{ fontSize: 11, color: '#8b949e', lineHeight: 1.5 }}>
+            {meta.description}
+          </div>
+          <Tooltip.Arrow style={{ fill: '#30363d' }} />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   )
 }
 
@@ -157,91 +185,117 @@ function SectionBlock({ section, query }: { section: SidebarSection; query: stri
 
 export function Sidebar() {
   const [query, setQuery] = useState("")
+  const [collapsed, setCollapsed] = useState(false)
   const nodeCount = useStore((s) => s.nodes.length)
   const edgeCount = useStore((s) => s.edges.length)
   const diagramName = useStore((s) => s.diagramName)
   const setDiagramName = useStore((s) => s.setDiagramName)
 
   return (
-    <aside
-      className="flex flex-col w-[260px] shrink-0 h-full border-r border-[#21262d] overflow-hidden"
-      style={{ background: "#0d1117" }}
-    >
-      {/* Logo */}
-      <div className="px-4 pt-4 pb-3 border-b border-[#21262d]">
-        <div className="flex items-center gap-2.5 mb-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded bg-[#00e5ff]/10 border border-[#00e5ff]/25">
-            <Cpu size={16} className="text-[#00e5ff]" />
+    <Tooltip.Provider>
+      <aside
+        className="flex flex-col shrink-0 h-full border-r border-[#21262d] overflow-hidden transition-all duration-200"
+        style={{ background: "#0d1117", width: collapsed ? 42 : 260 }}
+      >
+        {/* Collapsed state: just the toggle button */}
+        {collapsed ? (
+          <div className="flex flex-col items-center pt-3 gap-3">
+            <button
+              onClick={() => setCollapsed(false)}
+              title="Ouvrir la sidebar"
+              className="flex items-center justify-center w-7 h-7 rounded border border-[#30363d]
+                text-[#484f58] hover:text-[#00e5ff] hover:border-[#00e5ff] transition-colors"
+            >
+              <PanelLeftOpen size={14} />
+            </button>
           </div>
-          <div className="leading-none">
-            <div className="text-[13px] font-bold text-[#00e5ff] tracking-tight">HomeLab</div>
-            <div className="text-[10px] text-[#30363d] uppercase tracking-widest">Designer</div>
+        ) : (
+          <>
+        {/* Logo */}
+        <div className="px-4 pt-4 pb-3 border-b border-[#21262d]">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded bg-[#00e5ff]/10 border border-[#00e5ff]/25">
+              <Cpu size={16} className="text-[#00e5ff]" />
+            </div>
+            <div className="leading-none flex-1">
+              <div className="text-[13px] font-bold text-[#00e5ff] tracking-tight">HomeLab</div>
+              <div className="text-[10px] text-[#30363d] uppercase tracking-widest">Designer</div>
+            </div>
+            <button
+              onClick={() => setCollapsed(true)}
+              title="Réduire la sidebar"
+              className="text-[#30363d] hover:text-[#8b949e] transition-colors"
+            >
+              <PanelLeftClose size={14} />
+            </button>
           </div>
-        </div>
 
-        <input
-          value={diagramName}
-          onChange={(e) => setDiagramName(e.target.value)}
-          placeholder="Diagram name…"
-          className="w-full bg-[#161b22] border border-[#30363d] rounded text-[12px]
-            text-[#8b949e] px-2.5 py-2 outline-none focus:border-[#00e5ff]
-            focus:text-[#e6edf3] transition-colors"
-          style={{ fontFamily: "inherit" }}
-        />
-      </div>
-
-      {/* Search */}
-      <div className="px-4 py-2.5 border-b border-[#21262d]">
-        <div className="flex items-center gap-2 bg-[#161b22] border border-[#30363d] rounded px-2.5 py-2
-          focus-within:border-[#00e5ff] transition-colors">
-          <Search size={13} className="text-[#484f58] shrink-0" />
           <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filtrer les composants…"
-            className="flex-1 bg-transparent text-[12px] text-[#c9d1d9] outline-none placeholder:text-[#484f58]"
+            value={diagramName}
+            onChange={(e) => setDiagramName(e.target.value)}
+            placeholder="Diagram name…"
+            className="w-full bg-[#161b22] border border-[#30363d] rounded text-[12px]
+              text-[#8b949e] px-2.5 py-2 outline-none focus:border-[#00e5ff]
+              focus:text-[#e6edf3] transition-colors"
             style={{ fontFamily: "inherit" }}
           />
-          {query && (
-            <button onClick={() => setQuery("")} className="text-[#484f58] hover:text-[#8b949e]">
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><path d="M6.5 1.5l-5 5M1.5 1.5l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-            </button>
-          )}
         </div>
-      </div>
 
-      {/* Sections */}
-      <div className="flex-1 overflow-y-auto px-4 py-2.5 space-y-1">
-        {SIDEBAR_SECTIONS.map((s) => (
-          <SectionBlock key={s.id} section={s} query={query} />
-        ))}
-      </div>
-
-      {/* Tips */}
-      {!query && (
-        <div className="px-4 pt-2.5 pb-2.5 border-t border-[#21262d]">
-          <div className="text-[10px] text-[#30363d] leading-relaxed space-y-0.5">
-            <div>› Glisser pour ajouter</div>
-            <div>› Double-clic pour renommer</div>
-            <div>› Handles = connexions</div>
+        {/* Search */}
+        <div className="px-4 py-2.5 border-b border-[#21262d]">
+          <div className="flex items-center gap-2 bg-[#161b22] border border-[#30363d] rounded px-2.5 py-2
+            focus-within:border-[#00e5ff] transition-colors">
+            <Search size={13} className="text-[#484f58] shrink-0" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Filtrer les composants…"
+              className="flex-1 bg-transparent text-[12px] text-[#c9d1d9] outline-none placeholder:text-[#484f58]"
+              style={{ fontFamily: "inherit" }}
+            />
+            {query && (
+              <button onClick={() => setQuery("")} className="text-[#484f58] hover:text-[#8b949e]">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><path d="M6.5 1.5l-5 5M1.5 1.5l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              </button>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Footer stats */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#21262d]">
-        <span className="text-[10px] uppercase tracking-widest text-[#30363d]">canvas</span>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] text-[#484f58] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#3fb950] inline-block" />
-            {nodeCount}N
-          </span>
-          <span className="text-[10px] text-[#484f58] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#00e5ff] inline-block" />
-            {edgeCount}E
-          </span>
+        {/* Sections */}
+        <div className="flex-1 overflow-y-auto px-4 py-2.5 space-y-1">
+          {SIDEBAR_SECTIONS.map((s) => (
+            <SectionBlock key={s.id} section={s} query={query} />
+          ))}
         </div>
-      </div>
-    </aside>
+
+        {/* Tips */}
+        {!query && (
+          <div className="px-4 pt-2.5 pb-2.5 border-t border-[#21262d]">
+            <div className="text-[10px] text-[#30363d] leading-relaxed space-y-0.5">
+              <div>› Glisser pour ajouter</div>
+              <div>› Double-clic pour renommer</div>
+              <div>› Handles = connexions</div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer stats */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#21262d]">
+          <span className="text-[10px] uppercase tracking-widest text-[#30363d]">canvas</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-[#484f58] flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#3fb950] inline-block" />
+              {nodeCount}N
+            </span>
+            <span className="text-[10px] text-[#484f58] flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#00e5ff] inline-block" />
+              {edgeCount}E
+            </span>
+          </div>
+        </div>
+          </>
+        )}
+      </aside>
+    </Tooltip.Provider>
   )
 }

@@ -70,6 +70,10 @@ export type HLabEdge = Edge<HLabEdgeData>
 export interface DiagramState {
   nodes: HLabNode[]; edges: HLabEdge[]; name: string
   version: string; createdAt: string; updatedAt: string
+  // enriched metadata
+  nodeCount?: number; edgeCount?: number
+  author?: string; description?: string; tags?: string[]
+  viewport?: { x: number; y: number; zoom: number }
 }
 
 // ─── Sidebar sections ──────────────────────────────────────────────────────────

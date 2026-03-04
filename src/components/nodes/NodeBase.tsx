@@ -60,7 +60,7 @@ export const NodeBase = memo(function NodeBase({
   return (
     <div
       className={cn(
-        'relative flex flex-col rounded-lg border transition-all duration-150 group',
+        'relative flex flex-col rounded-lg border transition-all duration-150 group hlab-node-enter',
         'bg-[#161b22]',
         selected
           ? 'border-[#00e5ff] shadow-[0_0_0_1px_#00e5ff,0_0_24px_rgba(0,229,255,0.18)]'

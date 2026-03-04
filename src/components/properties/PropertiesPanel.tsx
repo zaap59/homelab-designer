@@ -1,4 +1,4 @@
-import { X, Settings } from "lucide-react"
+import { X, Settings, AlertTriangle } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { NODE_META } from "@/types"
 import type { NodeType, BaseNodeData } from "@/types"
@@ -228,21 +228,26 @@ export function PropertiesPanel() {
   const update = (patch: Partial<BaseNodeData>) =>
     updateNodeData(node.id, patch)
 
+  // IP conflict detection
+  const ipConflicts = data.ip
+    ? nodes.filter((n) => n.id !== selectedNodeId && n.data.ip && n.data.ip.trim() === data.ip!.trim())
+    : []
+
   return (
     <aside
       className="flex flex-col w-[260px] shrink-0 h-full border-l border-[#21262d] overflow-hidden"
       style={{ background: "#0d1117" }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[#21262d]">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#21262d]">
         <div
-          className="flex items-center justify-center w-6 h-6 rounded shrink-0"
+          className="flex items-center justify-center w-8 h-8 rounded shrink-0"
           style={{ background: `${meta.color}18`, border: `1px solid ${meta.color}35` }}
         >
-          <Settings size={12} style={{ color: meta.color }} />
+          <Settings size={15} style={{ color: meta.color }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[11px] font-semibold text-[#e6edf3] truncate">{data.label}</div>
+          <div className="text-[13px] font-semibold text-[#e6edf3] truncate">{data.label}</div>
           <div className="flex items-center gap-1 mt-0.5">
             <Badge color={meta.color}>{meta.label}</Badge>
           </div>
@@ -251,14 +256,14 @@ export function PropertiesPanel() {
           onClick={() => setSelectedNode(null)}
           className="text-[#484f58] hover:text-[#8b949e] transition-colors shrink-0"
         >
-          <X size={13} />
+          <X size={14} />
         </button>
       </div>
 
       {/* Form */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         <div className="space-y-2.5">
-          <div className="text-[9px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
+          <div className="text-[11px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
             Identité
           </div>
           <Input
@@ -271,16 +276,26 @@ export function PropertiesPanel() {
         <Separator />
 
         <div className="space-y-2.5">
-          <div className="text-[9px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
+          <div className="text-[11px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
             Propriétés
           </div>
           <FieldsComponent data={data} update={update} />
+          {ipConflicts.length > 0 && (
+            <div className="flex items-start gap-2 px-2.5 py-2 rounded border text-[11px]"
+              style={{ background: '#d2992214', borderColor: '#d2992240', color: '#d29922' }}>
+              <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+              <span>
+                IP en conflit avec :{' '}
+                <strong>{ipConflicts.map((n) => n.data.label).join(', ')}</strong>
+              </span>
+            </div>
+          )}
         </div>
 
         <Separator />
 
         <div className="space-y-2.5">
-          <div className="text-[9px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
+          <div className="text-[11px] uppercase tracking-widest text-[#484f58] font-semibold px-0.5">
             Notes
           </div>
           <Textarea
@@ -292,8 +307,8 @@ export function PropertiesPanel() {
       </div>
 
       {/* Footer: node id */}
-      <div className="px-3 py-2 border-t border-[#21262d]">
-        <div className="text-[8px] text-[#30363d] font-mono truncate">{node.id}</div>
+      <div className="px-4 py-2.5 border-t border-[#21262d]">
+        <div className="text-[10px] text-[#30363d] font-mono truncate">{node.id}</div>
       </div>
     </aside>
   )

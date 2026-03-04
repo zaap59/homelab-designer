@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/sidebar/Sidebar'
 import { Canvas } from '@/components/canvas/Canvas'
 import { PropertiesPanel } from '@/components/properties/PropertiesPanel'
 import { EdgePropertiesPanel } from '@/components/properties/EdgePropertiesPanel'
+import { ToastContainer } from '@/components/ui/ToastContainer'
 import { useStore } from '@/store/useStore'
 import { ReactFlowProvider } from '@xyflow/react'
 
@@ -33,6 +34,7 @@ export default function App() {
           {selectedEdgeId && !selectedNodeId && <EdgePropertiesPanel />}
         </div>
       </div>
+      <ToastContainer />
     </ReactFlowProvider>
   )
 }

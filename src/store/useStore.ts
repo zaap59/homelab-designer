@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toast } from '@/lib/toast'
 import {
   addEdge as rfAddEdge,
   applyNodeChanges,
@@ -246,8 +247,14 @@ export const useStore = create<StoreState>((set, get) => ({
 
   saveDiagram: () => {
     const { nodes, edges, projectName } = get()
-    const state: DiagramState = { nodes, edges, name: projectName, version: '1.1.0', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+    const now = new Date().toISOString()
+    const state: DiagramState = {
+      nodes, edges, name: projectName, version: '1.1.0',
+      createdAt: now, updatedAt: now,
+      nodeCount: nodes.length, edgeCount: edges.length,
+    }
     localStorage.setItem('homelab-designer:diagram', JSON.stringify(state))
+    toast('Diagramme sauvegardé', 'success')
   },
 
   loadFromStorage: () => {
@@ -257,18 +264,31 @@ export const useStore = create<StoreState>((set, get) => ({
 
   exportDiagram: () => {
     const { nodes, edges, projectName } = get()
-    const state: DiagramState = { nodes, edges, name: projectName, version: '1.1.0', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
+    const now = new Date().toISOString()
+    const state: DiagramState = {
+      nodes, edges, name: projectName, version: '1.1.0',
+      createdAt: now, updatedAt: now,
+      nodeCount: nodes.length, edgeCount: edges.length,
+      tags: [],
+    }
+    const json = JSON.stringify(state, null, 2)
+    const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = `${projectName.replace(/\s+/g, '-').toLowerCase()}.json`; a.click()
+    const slug = projectName.replace(/\s+/g, '-').toLowerCase()
+    a.href = url; a.download = `${slug}.hlab.json`; a.click()
     URL.revokeObjectURL(url)
+    toast(`Export JSON — ${projectName} (${nodes.length}n / ${edges.length}e)`, 'info')
   },
 
   importDiagram: (json) => {
     try {
       const state: DiagramState = JSON.parse(json)
       set({ nodes: state.nodes ?? [], edges: state.edges ?? [], projectName: state.name ?? 'Imported', selectedNodeId: null, selectedEdgeId: null, past: [], future: [] })
-    } catch { console.error('Invalid diagram JSON') }
+      toast(`Import : ${state.name ?? 'Imported'} (${(state.nodes ?? []).length} nœuds)`, 'success')
+    } catch {
+      console.error('Invalid diagram JSON')
+      toast('Fichier JSON invalide', 'error')
+    }
   },
 }))
