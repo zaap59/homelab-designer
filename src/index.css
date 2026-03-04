@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0d1117;
+  --color-bg-secondary: #161b22;
+  --color-bg-tertiary: #1c2128;
+  --color-border: #30363d;
+  --color-border-subtle: #21262d;
+  --color-accent: #00e5ff;
+  --color-accent-dim: #00b8cc;
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted: #484f58;
+  --color-success: #3fb950;
+  --color-warning: #d29922;
+  --color-danger: #f85149;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0d1117;
+  color: #e6edf3;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #161b22; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #00e5ff; }
+
+.react-flow__background { background-color: #0d1117 !important; }
+
+.react-flow__controls {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+
+.react-flow__controls-button {
+  background: #161b22 !important;
+  border-bottom: 1px solid #30363d !important;
+  fill: #8b949e !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #1c2128 !important;
+  fill: #00e5ff !important;
+}
+
+.react-flow__minimap {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__minimap-mask { fill: rgba(13, 17, 23, 0.7) !important; }
+.react-flow__minimap-node { fill: #30363d !important; }
+
+.react-flow__edge-path {
+  stroke: #30363d;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: #00e5ff;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.5));
+}
+
+.react-flow__connection-path {
+  stroke: #00e5ff;
+  stroke-width: 2;
+}
+
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  background: #30363d !important;
+  border: 2px solid #484f58 !important;
+  border-radius: 50% !important;
+  transition: all 0.15s ease;
+  z-index: 10;
+}
+
+.react-flow__handle:hover,
+.react-flow__handle-connecting {
+  background: #00e5ff !important;
+  border-color: #00e5ff !important;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6) !important;
+}
+
+.react-flow__node.selected > div {
+  outline: 1px solid #00e5ff !important;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2) !important;
+}
