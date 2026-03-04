@@ -15,15 +15,15 @@ export const VMNode = memo(function VMNode({
   id, data, selected,
 }: NodeProps<Node<VMData>>) {
   const color = '#00e676'
-  const badges = []
-  if (data.ip) badges.push({ label: 'ip', value: data.ip, color: '#00e676' })
-  if (data.os) badges.push({ label: 'os', value: data.os })
-  if (data.hypervisor) badges.push({ label: 'hv', value: data.hypervisor })
-  if (data.cpu) badges.push({ label: 'cpu', value: data.cpu })
-  if (data.ram) badges.push({ label: 'ram', value: data.ram })
+  const fields = []
+  if (data.ip)         fields.push({ label: 'IP',          value: data.ip,         color: '#00e676' })
+  if (data.os)         fields.push({ label: 'OS',          value: data.os })
+  if (data.hypervisor) fields.push({ label: 'Hyperviseur', value: data.hypervisor })
+  if (data.cpu)        fields.push({ label: 'CPU',         value: data.cpu })
+  if (data.ram)        fields.push({ label: 'RAM',         value: data.ram })
 
   return (
     <NodeBase id={id} nodeType="vm" label={data.label} selected={selected}
-      icon={<VMIcon color={color} />} badges={badges} />
+      icon={<VMIcon color={color} />} fields={fields} />
   )
 })

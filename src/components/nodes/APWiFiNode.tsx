@@ -16,14 +16,14 @@ export const APWiFiNode = memo(function APWiFiNode({
   id, data, selected,
 }: NodeProps<Node<APWiFiData>>) {
   const color = '#69ff47'
-  const badges: { label: string; value: string; color?: string }[] = []
-  if (data.ssid)      badges.push({ label: 'SSID',  value: data.ssid,      color: '#69ff47' })
-  if (data.band)      badges.push({ label: 'band',  value: data.band })
-  if (data.frequency) badges.push({ label: 'freq',  value: data.frequency })
-  if (data.ip)        badges.push({ label: 'ip',    value: data.ip })
+  const fields: { label: string; value: string; color?: string }[] = []
+  if (data.ssid)      fields.push({ label: 'SSID',       value: data.ssid,      color: '#69ff47' })
+  if (data.band)      fields.push({ label: 'Bande',      value: data.band })
+  if (data.frequency) fields.push({ label: 'Fréquence',  value: data.frequency })
+  if (data.ip)        fields.push({ label: 'IP',         value: data.ip })
 
   return (
     <NodeBase id={id} nodeType="apwifi" label={data.label} selected={selected}
-      icon={<APWiFiIcon color={color} />} badges={badges} minWidth={165} />
+      icon={<APWiFiIcon color={color} />} fields={fields} minWidth={165} />
   )
 })

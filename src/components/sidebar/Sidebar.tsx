@@ -188,8 +188,8 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const nodeCount = useStore((s) => s.nodes.length)
   const edgeCount = useStore((s) => s.edges.length)
-  const diagramName = useStore((s) => s.diagramName)
-  const setDiagramName = useStore((s) => s.setDiagramName)
+  const diagramName = useStore((s) => s.projectName)
+  const setDiagramName = useStore((s) => s.setProjectName)
 
   return (
     <Tooltip.Provider>

@@ -18,14 +18,14 @@ export const ServerNode = memo(function ServerNode({
   id, data, selected,
 }: NodeProps<Node<ServerData>>) {
   const color = '#7c4dff'
-  const badges = []
-  if (data.ip) badges.push({ label: 'ip', value: data.ip, color: '#7c4dff' })
-  if (data.os) badges.push({ label: 'os', value: data.os })
-  if (data.cpu) badges.push({ label: 'cpu', value: data.cpu })
-  if (data.ram) badges.push({ label: 'ram', value: data.ram })
+  const fields = []
+  if (data.ip)  fields.push({ label: 'IP',  value: data.ip,  color: '#7c4dff' })
+  if (data.os)  fields.push({ label: 'OS',  value: data.os })
+  if (data.cpu) fields.push({ label: 'CPU', value: data.cpu })
+  if (data.ram) fields.push({ label: 'RAM', value: data.ram })
 
   return (
     <NodeBase id={id} nodeType="server" label={data.label} selected={selected}
-      icon={<ServerIcon color={color} />} badges={badges} />
+      icon={<ServerIcon color={color} />} fields={fields} />
   )
 })

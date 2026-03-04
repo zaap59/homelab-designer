@@ -21,13 +21,13 @@ export const CloudNode = memo(function CloudNode({
   id, data, selected,
 }: NodeProps<Node<CloudData>>) {
   const providerColor = (data.provider && PROVIDER_COLORS[data.provider]) ?? '#40c4ff'
-  const badges = []
-  if (data.provider) badges.push({ label: 'provider', value: data.provider, color: providerColor })
-  if (data.service) badges.push({ label: 'service', value: data.service })
-  if (data.region) badges.push({ label: 'region', value: data.region })
+  const fields = []
+  if (data.provider) fields.push({ label: 'Provider', value: data.provider, color: providerColor })
+  if (data.service)  fields.push({ label: 'Service',  value: data.service })
+  if (data.region)   fields.push({ label: 'Région',   value: data.region })
 
   return (
     <NodeBase id={id} nodeType="cloud" label={data.label} selected={selected}
-      icon={<CloudIcon color={providerColor} />} badges={badges} minWidth={180} />
+      icon={<CloudIcon color={providerColor} />} fields={fields} minWidth={180} />
   )
 })

@@ -37,8 +37,8 @@ export const EDGE_META: Record<EdgeType, { label: string; color: string; strokeD
 
 // ─── Per-Node Data Interfaces ──────────────────────────────────────────────────
 
-export interface RouterData    extends Record<string, unknown> { nodeType: 'router';    label: string; ip?: string; model?: string; notes?: string }
-export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; notes?: string }
+export interface RouterData    extends Record<string, unknown> { nodeType: 'router';    label: string; wanIp?: string; lanIp?: string; ip?: string; model?: string; os?: string; portCount?: number; tags?: string[]; notes?: string }
+export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; model?: string; speed?: string; rj45Count?: number; sfpCount?: number; connectedPorts?: number[]; notes?: string }
 export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; notes?: string }
 export interface VMData        extends Record<string, unknown> { nodeType: 'vm';        label: string; ip?: string; os?: string; hypervisor?: string; cpu?: string; ram?: string; notes?: string }
 export interface ContainerData extends Record<string, unknown> { nodeType: 'container'; label: string; image?: string; ports?: string; notes?: string }
@@ -58,6 +58,10 @@ export interface BaseNodeData extends Record<string, unknown> {
   protocol?: string; provider?: string; service?: string; region?: string
   asn?: string; uplink?: string; ssid?: string; band?: string; frequency?: string
   color?: string; notes?: string
+  // router extra
+  wanIp?: string; lanIp?: string; portCount?: number; tags?: string[]
+  // switch extra
+  speed?: string; rj45Count?: number; sfpCount?: number; connectedPorts?: number[]
 }
 
 // ─── React Flow aliases ────────────────────────────────────────────────────────

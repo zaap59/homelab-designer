@@ -1,4 +1,4 @@
-import { X, Settings, AlertTriangle } from "lucide-react"
+import { X, Settings, AlertTriangle, Plus, Minus } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { NODE_META } from "@/types"
 import type { NodeType, BaseNodeData } from "@/types"
@@ -10,26 +10,84 @@ import { Badge } from "@/components/ui/Badge"
 
 // ─── Field block per node type ────────────────────────────────────────────────
 
+/** Spinner for numeric port counts */
+function PortSpinner({ label, value, min, max, onChange }: {
+  label: string; value: number; min: number; max: number
+  onChange: (v: number) => void
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[11px] text-[#8b949e]">{label}</span>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="flex items-center justify-center w-6 h-6 rounded border border-[#30363d]
+            bg-[#161b22] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#484f58]
+            disabled:opacity-30 transition-colors"
+        >
+          <Minus size={10} />
+        </button>
+        <span className="text-[13px] font-mono text-[#e6edf3] w-6 text-center">{value}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="flex items-center justify-center w-6 h-6 rounded border border-[#30363d]
+            bg-[#161b22] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#484f58]
+            disabled:opacity-30 transition-colors"
+        >
+          <Plus size={10} />
+        </button>
+        {/* Mini port preview */}
+        <div className="flex flex-wrap gap-[3px] ml-2">
+          {Array.from({ length: Math.min(value, 24) }, (_, i) => (
+            <div
+              key={i}
+              className="w-[8px] h-[6px] rounded-sm bg-[#0d1117] border border-[#30363d]"
+            />
+          ))}
+          {value > 24 && (
+            <span className="text-[9px] text-[#484f58] self-center">+{value - 24}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function RouterFields({ data, update }: FieldProps) {
+  const portCount = (data.portCount as number) ?? 5
   return (
     <>
       <Input label="IP / Loopback" value={data.ip ?? ""} placeholder="192.168.1.1"
         onChange={(e) => update({ ip: e.target.value })} />
+      <Input label="WAN IP" value={(data.wanIp as string) ?? ""} placeholder="203.0.113.1"
+        onChange={(e) => update({ wanIp: e.target.value })} />
+      <Input label="LAN IP" value={(data.lanIp as string) ?? ""} placeholder="192.168.1.1"
+        onChange={(e) => update({ lanIp: e.target.value })} />
       <Input label="Modèle" value={data.model ?? ""} placeholder="Cisco ISR 4431"
         onChange={(e) => update({ model: e.target.value })} />
+      <PortSpinner label="Ports LAN" value={portCount} min={1} max={12}
+        onChange={(v) => update({ portCount: v, connectedPorts: [] })} />
     </>
   )
 }
 
 function SwitchFields({ data, update }: FieldProps) {
+  const rj45Count = (data.rj45Count as number) ?? 8
+  const sfpCount  = (data.sfpCount  as number) ?? 2
   return (
     <>
       <Input label="IP de management" value={data.ip ?? ""} placeholder="10.0.0.254"
         onChange={(e) => update({ ip: e.target.value })} />
-      <Input label="Ports" value={data.ports ?? ""} placeholder="24"
-        onChange={(e) => update({ ports: e.target.value })} />
       <Input label="VLAN tags" value={data.vlan ?? ""} placeholder="10,20,30"
         onChange={(e) => update({ vlan: e.target.value })} />
+      <Input label="Vitesse" value={(data.speed as string) ?? ""} placeholder="1G"
+        onChange={(e) => update({ speed: e.target.value })} />
+      <PortSpinner label="Ports RJ45" value={rj45Count} min={1} max={48}
+        onChange={(v) => update({ rj45Count: v, connectedPorts: [] })} />
+      <PortSpinner label="Ports SFP" value={sfpCount} min={0} max={8}
+        onChange={(v) => update({ sfpCount: v, connectedPorts: [] })} />
     </>
   )
 }

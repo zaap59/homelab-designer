@@ -18,13 +18,13 @@ export const NASNode = memo(function NASNode({
   id, data, selected,
 }: NodeProps<Node<NASData>>) {
   const color = '#ffd740'
-  const badges = []
-  if (data.ip) badges.push({ label: 'ip', value: data.ip, color: '#ffd740' })
-  if (data.capacity) badges.push({ label: 'cap', value: data.capacity })
-  if (data.protocol) badges.push({ label: 'proto', value: data.protocol })
+  const fields = []
+  if (data.ip)       fields.push({ label: 'IP',       value: data.ip,       color: '#ffd740' })
+  if (data.capacity) fields.push({ label: 'Capacité', value: data.capacity })
+  if (data.protocol) fields.push({ label: 'Protocole', value: data.protocol })
 
   return (
     <NodeBase id={id} nodeType="nas" label={data.label} selected={selected}
-      icon={<NASIcon color={color} />} badges={badges} />
+      icon={<NASIcon color={color} />} fields={fields} />
   )
 })

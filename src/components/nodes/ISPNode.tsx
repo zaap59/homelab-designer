@@ -14,13 +14,13 @@ export const ISPNode = memo(function ISPNode({
   id, data, selected,
 }: NodeProps<Node<ISPData>>) {
   const color = '#e040fb'
-  const badges: { label: string; value: string; color?: string }[] = []
-  if (data.asn)    badges.push({ label: 'ASN',    value: data.asn,    color: '#e040fb' })
-  if (data.uplink) badges.push({ label: 'uplink', value: data.uplink })
-  if (data.ip)     badges.push({ label: 'ip',     value: data.ip })
+  const fields: { label: string; value: string; color?: string }[] = []
+  if (data.asn)    fields.push({ label: 'ASN',    value: data.asn,    color: '#e040fb' })
+  if (data.uplink) fields.push({ label: 'Uplink', value: data.uplink })
+  if (data.ip)     fields.push({ label: 'IP',     value: data.ip })
 
   return (
     <NodeBase id={id} nodeType="isp" label={data.label} selected={selected}
-      icon={<ISPIcon color={color} />} badges={badges} minWidth={170} />
+      icon={<ISPIcon color={color} />} fields={fields} minWidth={170} />
   )
 })

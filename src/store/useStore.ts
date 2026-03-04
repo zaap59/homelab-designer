@@ -123,6 +123,20 @@ export const useStore = create<StoreState>((set, get) => ({
         s.edges,
       ) as HLabEdge[],
     }))
+    // Track connected ports on Switch / Router nodes
+    const trackPort = (nodeId: string | null, handleId: string | null | undefined) => {
+      if (!nodeId || !handleId?.startsWith('port-')) return
+      const portIdx = parseInt(handleId.split('-')[1], 10)
+      if (isNaN(portIdx)) return
+      const node = get().nodes.find((n) => n.id === nodeId)
+      if (!node) return
+      const existing: number[] = (node.data.connectedPorts as number[]) ?? []
+      if (!existing.includes(portIdx)) {
+        get().updateNodeData(nodeId, { connectedPorts: [...existing, portIdx] })
+      }
+    }
+    trackPort(connection.source, connection.sourceHandle)
+    trackPort(connection.target, connection.targetHandle)
   },
 
   // ── Node operations ───────────────────────────────────────────────────────

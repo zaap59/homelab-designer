@@ -14,12 +14,12 @@ export const FirewallNode = memo(function FirewallNode({
   id, data, selected,
 }: NodeProps<Node<FirewallData>>) {
   const color = '#ff9100'
-  const badges = []
-  if (data.ip) badges.push({ label: 'ip', value: data.ip, color: '#ff9100' })
-  if (data.rules) badges.push({ label: 'rules', value: data.rules })
+  const fields = []
+  if (data.ip)    fields.push({ label: 'IP',    value: data.ip,    color: '#ff9100' })
+  if (data.rules) fields.push({ label: 'Règles', value: data.rules })
 
   return (
     <NodeBase id={id} nodeType="firewall" label={data.label} selected={selected}
-      icon={<FirewallIcon color={color} />} badges={badges} />
+      icon={<FirewallIcon color={color} />} fields={fields} />
   )
 })

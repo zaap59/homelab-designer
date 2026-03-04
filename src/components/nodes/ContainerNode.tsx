@@ -15,12 +15,12 @@ export const ContainerNode = memo(function ContainerNode({
   id, data, selected,
 }: NodeProps<Node<ContainerData>>) {
   const color = '#ff4081'
-  const badges = []
-  if (data.image) badges.push({ label: 'img', value: data.image, color: '#ff4081' })
-  if (data.ports) badges.push({ label: 'ports', value: data.ports })
+  const fields = []
+  if (data.image) fields.push({ label: 'Image', value: data.image, color: '#ff4081' })
+  if (data.ports) fields.push({ label: 'Ports', value: data.ports })
 
   return (
     <NodeBase id={id} nodeType="container" label={data.label} selected={selected}
-      icon={<ContainerIcon color={color} />} badges={badges} />
+      icon={<ContainerIcon color={color} />} fields={fields} />
   )
 })
