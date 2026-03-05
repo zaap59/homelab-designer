@@ -1,146 +1,129 @@
 import { memo } from 'react'
-import { Handle, Position } from '@xyflow/react'
+import { Handle, Position, useHandleConnections } from '@xyflow/react'
 import type { NodeProps, Node } from '@xyflow/react'
 import type { SwitchData } from '@/types'
-import { NodeBase } from './NodeBase'
+import { NodeBase, NodeBody, NodeField, NodeDivider, T } from './NodeBase'
 
-const SwitchIcon = ({ color }: { color: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="8" width="20" height="8" rx="2" />
-    <line x1="6" y1="12" x2="6" y2="12.01" strokeWidth="3" />
-    <line x1="10" y1="12" x2="10" y2="12.01" strokeWidth="3" />
-    <line x1="14" y1="12" x2="14" y2="12.01" strokeWidth="3" />
-    <line x1="18" y1="12" x2="18" y2="12.01" strokeWidth="3" />
+const SwitchIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="10" rx="2"/>
+    <circle cx="6"  cy="12" r="1.5" fill="currentColor"/>
+    <circle cx="10" cy="12" r="1.5" fill="currentColor"/>
+    <circle cx="14" cy="12" r="1.5" fill="currentColor"/>
+    <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+    <path d="M7 4l3 3-3 3M17 20l-3-3 3-3" strokeLinecap="round"/>
   </svg>
 )
-
-// ─── Port visualization ────────────────────────────────────────────────────────
-
-interface PortGridProps {
-  rj45Count: number
-  sfpCount: number
-  connectedPorts: number[]
-  color: string
-}
-
-function PortGrid({ rj45Count, sfpCount, connectedPorts, color }: PortGridProps) {
-  const total = rj45Count + sfpCount
-  return (
-    <div className="px-2 py-2">
-      {/* RJ45 ports */}
-      {rj45Count > 0 && (
-        <div className="mb-1.5">
-          <span className="text-[8px] uppercase tracking-widest text-[#484f58] block mb-1">
-            RJ45 ({rj45Count})
-          </span>
-          <div className="flex flex-wrap gap-[3px]">
-            {Array.from({ length: rj45Count }, (_, i) => {
-              const connected = connectedPorts.includes(i)
-              return (
-                <div
-                  key={i}
-                  title={`Port ${i + 1}`}
-                  className="w-[10px] h-[8px] rounded-sm border transition-colors"
-                  style={{
-                    borderColor: connected ? color : '#30363d',
-                    background: connected ? `${color}40` : '#0d1117',
-                    boxShadow: connected ? `0 0 4px ${color}60` : 'none',
-                  }}
-                />
-              )
-            })}
-          </div>
-        </div>
-      )}
-      {/* SFP ports */}
-      {sfpCount > 0 && (
-        <div>
-          <span className="text-[8px] uppercase tracking-widest text-[#484f58] block mb-1">
-            SFP ({sfpCount})
-          </span>
-          <div className="flex flex-wrap gap-[3px]">
-            {Array.from({ length: sfpCount }, (_, i) => {
-              const portIdx = rj45Count + i
-              const connected = connectedPorts.includes(portIdx)
-              return (
-                <div
-                  key={i}
-                  title={`SFP ${i + 1}`}
-                  className="w-[12px] h-[8px] rounded-sm border transition-colors"
-                  style={{
-                    borderColor: connected ? '#40c4ff' : '#30363d',
-                    background: connected ? '#40c4ff30' : '#0d1117',
-                    boxShadow: connected ? '0 0 4px #40c4ff60' : 'none',
-                  }}
-                />
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Dynamic handles per port — positioned across the bottom */}
-      {Array.from({ length: total }, (_, i) => (
-        <Handle
-          key={i}
-          type="source"
-          position={Position.Bottom}
-          id={`port-${i}`}
-          style={{
-            left: `${((i + 0.5) / total) * 100}%`,
-            bottom: -5,
-            transform: 'translateX(-50%)',
-            width: 8,
-            height: 8,
-            background: connectedPorts.includes(i) ? color : '#131920',
-            border: `1.5px solid ${connectedPorts.includes(i) ? color : '#484f58'}`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
-// ─── SwitchNode ───────────────────────────────────────────────────────────────
 
 export const SwitchNode = memo(function SwitchNode({
   id, data, selected,
 }: NodeProps<Node<SwitchData>>) {
-  const color = '#4fc3f7'
   const rj45Count      = data.rj45Count      ?? 8
   const sfpCount       = data.sfpCount       ?? 2
   const connectedPorts = (data.connectedPorts as number[]) ?? []
+  const total          = rj45Count + sfpCount
 
-  const fields = []
-  if (data.ip)    fields.push({ label: 'IP',    value: data.ip,    color })
-  if (data.vlan)  fields.push({ label: 'VLAN',  value: data.vlan })
-  if (data.speed) fields.push({ label: 'Vitesse', value: data.speed })
+  // L'uplink (top handle) compte comme 1 port — n'afficher que total-1 en bas
+  const displayCount = Math.max(0, total - 1)
+  const displayRj45  = Math.min(rj45Count, displayCount)
+  const displaySfp   = Math.max(0, displayCount - displayRj45)
+
+  // Détecter si l'uplink est connecté pour l'activer visuellement
+  const uplinkConns    = useHandleConnections({ type: 'target', id: 'uplink', nodeId: id })
+  const uplinkActive   = uplinkConns.length > 0
+
+  const switchHandles = (
+    <>
+      {/* Static handles */}
+      <Handle type="target" position={Position.Top}   id="uplink" />
+      <Handle type="source" position={Position.Left}  id="left" />
+      <Handle type="source" position={Position.Right} id="right" />
+
+      {/* Dynamic port handles */}
+      {Array.from({ length: displayCount }, (_, i) => {
+        const leftPct = ((i + 0.5) / displayCount) * 100
+        const isConn  = connectedPorts.includes(i)
+        const isSFP   = i >= displayRj45
+        return (
+          <Handle key={`port-${i}`} type="source" position={Position.Bottom} id={`port-${i}`}
+            style={{
+              left: `${leftPct}%`,
+              background: isConn ? T.green : isSFP ? 'rgba(255,170,0,0.2)' : T.bg3,
+              border: `2px solid ${isConn ? T.green : isSFP ? T.amber : T.borderBright}`,
+              boxShadow: isConn ? '0 0 5px rgba(57,255,20,0.5)' : 'none',
+            }}
+          />
+        )
+      })}
+    </>
+  )
 
   return (
-    <NodeBase
-      id={id}
-      nodeType="switch"
-      label={data.label}
-      selected={selected}
-      icon={<SwitchIcon color={color} />}
-      fields={fields}
-      customHandles
-      minWidth={190}
+    <NodeBase id={id} nodeType="switch" label={data.label} selected={selected}
+      icon={<SwitchIcon />} iconColor={T.green} width={Math.max(247, displayCount * 29 + 26)}
+      customHandles handles={switchHandles}
     >
-      <PortGrid
-        rj45Count={rj45Count}
-        sfpCount={sfpCount}
-        connectedPorts={connectedPorts}
-        color={color}
-      />
-      {/* Uplink handle at top */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        id="uplink"
-        style={{ top: -5, left: '50%', transform: 'translateX(-50%)', width: 8, height: 8,
-          background: '#161b22', border: '1.5px solid #4fc3f7' }}
-      />
+      {/* ── Fields section ─ */}
+      <NodeBody>
+        <NodeField label="Mgmt IP" value={data.ip}    valueColor={T.cyan} />
+        <NodeField label="Model"   value={data.model} />
+        <NodeDivider />
+        <NodeField label="VLANs"   value={data.vlan  as string | undefined} />
+        <NodeField label="Speed"   value={data.speed} valueColor={T.green} />
+      </NodeBody>
+
+      {/* ── Port label row (avec indicateur uplink) ─ */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        fontSize: 8, letterSpacing: '1px', textTransform: 'uppercase',
+        padding: '0 10px 6px', color: T.textDim,
+      }}>
+        {/* Uplink indicator : s'allume quand une connexion entre sur le nœud */}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+            background: uplinkActive ? T.green : T.borderBright,
+            boxShadow: uplinkActive ? `0 0 5px ${T.green}` : 'none',
+            transition: 'all 0.2s',
+          }} />
+          <span style={{ color: uplinkActive ? T.green : T.textDim }}>Uplink</span>
+        </span>
+      </div>
+
+      {/* ── Port slots ─ */}
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: 3,
+        padding: '8px 10px 14px', borderTop: `1px solid ${T.border}`,
+      }}>
+        {/* RJ45 (total-1 ports) */}
+        {Array.from({ length: displayRj45 }, (_, i) => {
+          const on = connectedPorts.includes(i)
+          return (
+            <div key={i} style={{
+              width: 18, height: 12, borderRadius: 2,
+              background: on ? 'rgba(57,255,20,0.12)' : T.bg3,
+              border: `1px solid ${on ? T.green : T.border}`,
+              cursor: 'crosshair', transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {on && <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.green, boxShadow: `0 0 4px ${T.green}` }} />}
+            </div>
+          )
+        })}
+        {/* SFP */}
+        {Array.from({ length: displaySfp }, (_, i) => (
+          <div key={`sfp-${i}`} style={{
+            width: 22, height: 12, borderRadius: 2,
+            background: 'rgba(255,170,0,0.12)',
+            border: `1px solid ${T.amber}`,
+            cursor: 'crosshair',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.amber, boxShadow: `0 0 4px ${T.amber}` }} />
+          </div>
+        ))}
+      </div>
+
     </NodeBase>
   )
 })

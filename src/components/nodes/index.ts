@@ -9,11 +9,12 @@ import { CloudNode }     from './CloudNode'
 import { ISPNode }       from './ISPNode'
 import { APWiFiNode }    from './APWiFiNode'
 import { GroupNode }     from './GroupNode'
+import { CameraNode }    from './CameraNode'
 
 export {
   RouterNode, SwitchNode, ServerNode, VMNode,
   ContainerNode, FirewallNode, NASNode, CloudNode,
-  ISPNode, APWiFiNode, GroupNode,
+  ISPNode, APWiFiNode, GroupNode, CameraNode,
 }
 
 export const nodeTypes = {
@@ -28,4 +29,5 @@ export const nodeTypes = {
   isp:       ISPNode,
   apwifi:    APWiFiNode,
   group:     GroupNode,
+  camera:    CameraNode,
 } as const

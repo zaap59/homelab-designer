@@ -1,25 +1,33 @@
 import { memo } from 'react'
 import type { NodeProps, Node } from '@xyflow/react'
 import type { FirewallData } from '@/types'
-import { NodeBase } from './NodeBase'
+import { NodeBase, NodeBody, NodeField, NodeDivider, NodeTag, NodeTags, T } from './NodeBase'
 
-const FirewallIcon = ({ color }: { color: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2Z" />
-    <path d="M9 12l2 2 4-4" strokeWidth="2" />
+const FirewallIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l8 4v6c0 5-4 9-8 10C8 21 4 17 4 12V6l8-4z"/>
+    <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
 
 export const FirewallNode = memo(function FirewallNode({
   id, data, selected,
 }: NodeProps<Node<FirewallData>>) {
-  const color = '#ff9100'
-  const fields = []
-  if (data.ip)    fields.push({ label: 'IP',    value: data.ip,    color: '#ff9100' })
-  if (data.rules) fields.push({ label: 'Règles', value: data.rules })
-
   return (
     <NodeBase id={id} nodeType="firewall" label={data.label} selected={selected}
-      icon={<FirewallIcon color={color} />} fields={fields} />
+      icon={<FirewallIcon />} iconColor={T.red} width={221}>
+      <NodeBody>
+        <NodeField label="WAN"      value={data.wan ?? data.ip}  valueColor={T.cyan} />
+        <NodeField label="LAN"      value={data.lan} />
+        <NodeDivider />
+        <NodeField label="Platform" value={data.platform} />
+        <NodeField label="Rules"    value={data.rules}    valueColor={T.amber} />
+        <NodeDivider />
+        <NodeTags>
+          <NodeTag variant="cyan">IDS/IPS</NodeTag>
+          <NodeTag variant="amber">VPN</NodeTag>
+        </NodeTags>
+      </NodeBody>
+    </NodeBase>
   )
 })

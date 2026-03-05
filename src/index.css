@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import "./styles/tokens.css";
 @import "tailwindcss";
 
 @theme {
@@ -28,7 +28,7 @@ html, body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background-color: #0d1117;
+  background-color: #080c10;
   color: #e6edf3;
   font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   font-synthesis: none;
@@ -42,7 +42,16 @@ html, body, #root {
 ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #00e5ff; }
 
-.react-flow__background { background-color: #0d1117 !important; }
+/* ─── Canvas grid background ──────────────────────────────────────────────── */
+.react-flow__background { display: none !important; }
+
+.hlab-canvas-bg {
+  background-color: #080c10;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
 
 .react-flow__controls {
   background: #161b22 !important;
@@ -92,29 +101,41 @@ html, body, #root {
   stroke-width: 2;
 }
 
+.react-flow__node {
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
 .react-flow__handle {
   width: 10px !important;
   height: 10px !important;
-  background: #30363d !important;
-  border: 2px solid #484f58 !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
   border-radius: 50% !important;
-  transition: all 0.15s ease;
-  z-index: 10;
+  background: #131920 !important;
+  border: 2px solid #2a4060 !important;
+  cursor: crosshair !important;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s !important;
+  /* NE PAS toucher au transform — React Flow le gère */
 }
 
-.react-flow__handle:hover,
-.react-flow__handle-connecting {
+.react-flow__handle:hover {
   background: #00e5ff !important;
   border-color: #00e5ff !important;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6) !important;
+  box-shadow: 0 0 8px rgba(0,229,255,0.4) !important;
 }
 
-.react-flow__node.selected > div {
-  outline: 1px solid #00e5ff !important;
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2) !important;
-}
+/* NE PAS ajouter de règles .react-flow__handle-top/bottom/left/right */
 
-/* ─── Node drop animation ──────────────────────────────────────────────────── */
+/* selected: inline styles on the inner div handle this */
+
+/* ─── Node action bar (show on hover) ──────────────────────────────────────────── */
+.hlab-node:hover .hlab-action-bar { opacity: 1 !important; }
+/* target the inner visual div (first child of root) for border/shadow on hover */
+.hlab-node:hover > div:first-child { border-color: #2a4060 !important; box-shadow: 0 0 0 1px #2a4060, 0 8px 32px rgba(0,0,0,0.5) !important; }
+.hlab-node:hover .hlab-action-btn { color: #c9d1d9 !important; }
+.hlab-node:hover .hlab-action-btn:hover { color: #00e5ff !important; }
+.hlab-node:hover .hlab-action-btn--danger:hover { color: #ff3860 !important; }
 
 @keyframes hlab-pop-in {
   0%   { opacity: 0; transform: scale(0.78) translateY(8px); }

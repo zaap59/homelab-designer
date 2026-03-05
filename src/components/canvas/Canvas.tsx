@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ReactFlow,
-  Background,
-  BackgroundVariant,
   Controls,
   MiniMap,
   useReactFlow,
   type NodeMouseHandler,
   type EdgeMouseHandler,
 } from '@xyflow/react'
-import '@xyflow/react/dist/style.css'
 import { useStore } from '@/store/useStore'
 import { nodeTypes } from '@/components/nodes'
 import { edgeTypes, EdgeEditModal } from '@/components/edges'
@@ -67,10 +64,6 @@ function CanvasInner() {
   const [isDragOver, setIsDragOver] = useState(false)
   const { screenToFlowPosition } = useReactFlow()
 
-  const bg     = theme === 'dark' ? '#0d1117' : '#f0f4f8'
-  const dotC   = theme === 'dark' ? '#21262d' : '#c8d0dc'
-  const mmMask = theme === 'dark' ? 'rgba(13,17,23,0.75)' : 'rgba(240,244,248,0.75)'
-
   const onNodeClick: NodeMouseHandler = useCallback((_e, node) => setSelectedNode(node.id), [setSelectedNode])
   const onEdgeClick: EdgeMouseHandler = useCallback((_e, edge) => setSelectedEdge(edge.id), [setSelectedEdge])
   const onPaneClick  = useCallback(() => { setSelectedNode(null); setSelectedEdge(null) }, [setSelectedNode, setSelectedEdge])
@@ -99,8 +92,8 @@ function CanvasInner() {
   }, [screenToFlowPosition, addNode])
 
   return (
-    <div ref={wrapperRef} className="flex-1 relative overflow-hidden"
-      style={{ background: bg, outline: isDragOver ? '2px inset #00e5ff30' : 'none' }}
+    <div ref={wrapperRef} className="flex-1 relative overflow-hidden hlab-canvas-bg"
+      style={{ outline: isDragOver ? '2px inset rgba(0,229,255,0.3)' : 'none' }}
     >
       <SvgDefs />
       {nodes.length === 0 && <EmptyState />}
@@ -136,12 +129,11 @@ function CanvasInner() {
         proOptions={{ hideAttribution: true }}
         colorMode={theme}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color={dotC} />
         <Controls style={{ bottom: 100, left: 12 }} showZoom={false} showFitView={false} />
         <MiniMap
           style={{ bottom: 12, right: 12, width: 140, height: 90, border: '1px solid #21262d' }}
           nodeColor={(node) => NODE_META[(node.data as { nodeType?: NodeType })?.nodeType ?? 'router']?.color ?? '#30363d'}
-          maskColor={mmMask}
+          maskColor="rgba(8,12,16,0.75)"
           pannable zoomable
         />
       </ReactFlow>
