@@ -19,14 +19,19 @@ export const APWiFiNode = memo(function APWiFiNode({
     <NodeBase id={id} nodeType="apwifi" label={data.label} selected={selected}
       icon={<APWiFiIcon />} iconColor={T.green} width={215}>
       <NodeBody>
-        <NodeField label="SSID"      value={data.ssid}      valueColor={T.green} />
         <NodeField label="Bande"     value={data.band} />
-        <NodeDivider />
         <NodeField label="Fréquence" value={data.frequency} />
         <NodeField label="IP"        value={data.ip}        valueColor={T.cyan} />
-        <NodeTags>
-          <NodeTag variant="green">WiFi</NodeTag>
-        </NodeTags>
+        {data.ssids && data.ssids.length > 0 && (
+          <>
+            <NodeDivider />
+            <NodeTags>
+              {data.ssids.map((s) => (
+                <NodeTag key={s} variant="green">{s}</NodeTag>
+              ))}
+            </NodeTags>
+          </>
+        )}
       </NodeBody>
     </NodeBase>
   )

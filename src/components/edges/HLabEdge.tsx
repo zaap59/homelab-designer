@@ -35,7 +35,9 @@ export function HLabEdgeComponent({
   const handleClick = useCallback(() => setSelectedEdge(id), [id, setSelectedEdge])
 
   const strokeColor = isActive ? '#ffffff' : meta.color
-  const label = data?.label || data?.bandwidth || ''
+
+  const parts = [data?.label, data?.bandwidth, data?.protocol].filter(Boolean)
+  const label = parts.join(' · ')
 
   return (
     <>
@@ -86,7 +88,6 @@ export function HLabEdgeComponent({
               padding: '1px 5px',
               lineHeight: 1.6,
               whiteSpace: 'nowrap',
-              boxShadow: isActive ? `0 0 6px ${meta.color}50` : undefined,
             }}>
               {label}
             </span>

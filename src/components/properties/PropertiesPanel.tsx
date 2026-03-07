@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { X, Settings, AlertTriangle, Plus, Minus } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { NODE_META } from "@/types"
@@ -220,10 +221,33 @@ function ISPFields({ data, update }: FieldProps) {
 }
 
 function APWiFiFields({ data, update }: FieldProps) {
+  const ssids = (data.ssids as string[]) ?? []
+  const [draft, setDraft] = useState('')
+  const [focused, setFocused] = useState(false)
+
+  const selectedNodeId = useStore((s) => s.selectedNodeId)
+  const allNodes = useStore((s) => s.nodes)
+
+  // SSIDs des autres nodes wifi, pas encore dans la liste courante
+  const suggestions = [...new Set(
+    allNodes
+      .filter((n) => n.id !== selectedNodeId && n.data.nodeType === 'apwifi')
+      .flatMap((n) => (n.data.ssids as string[] | undefined) ?? [])
+      .filter((s) => !ssids.includes(s))
+  )].filter((s) => s.toLowerCase().includes(draft.toLowerCase()))
+
+  const addSsid = (value = draft) => {
+    const trimmed = value.trim()
+    if (!trimmed || ssids.includes(trimmed)) return
+    update({ ssids: [...ssids, trimmed] })
+    setDraft('')
+  }
+
+  const removeSsid = (s: string) =>
+    update({ ssids: ssids.filter((x) => x !== s) })
+
   return (
     <>
-      <Input label="SSID" value={data.ssid ?? ""} placeholder="HomeNetwork"
-        onChange={(e) => update({ ssid: e.target.value })} />
       <Input label="IP de management" value={data.ip ?? ""} placeholder="192.168.1.2"
         onChange={(e) => update({ ip: e.target.value })} />
       <Select label="Bande"
@@ -238,6 +262,51 @@ function APWiFiFields({ data, update }: FieldProps) {
       />
       <Input label="Fréquence / Canal" value={data.frequency ?? ""} placeholder="ch6 / 2.437 GHz"
         onChange={(e) => update({ frequency: e.target.value })} />
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] uppercase tracking-widest text-[#484f58] font-semibold">SSIDs</span>
+        {ssids.map((s) => (
+          <div key={s} className="flex items-center justify-between px-2 py-1 rounded border border-[#21262d] bg-[#0d1117]">
+            <span className="text-[11px] text-[#c9d1d9] font-mono truncate">{s}</span>
+            <button onClick={() => removeSsid(s)} className="text-[#484f58] hover:text-[#f85149] ml-2 shrink-0">
+              <X size={10} />
+            </button>
+          </div>
+        ))}
+        <div className="relative flex gap-1">
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addSsid()}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 100)}
+            placeholder="Ajouter un SSID…"
+            className="flex-1 bg-[#0d1117] border border-[#30363d] rounded px-2 py-1.5
+              text-[11px] text-[#c9d1d9] placeholder:text-[#484f58] outline-none
+              focus:border-[#58a6ff] font-mono"
+          />
+          <button
+            onClick={() => addSsid()}
+            className="flex items-center justify-center w-7 h-7 rounded border border-[#30363d]
+              bg-[#161b22] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#484f58] transition-colors"
+          >
+            <Plus size={11} />
+          </button>
+          {focused && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-8 mt-1 z-50 rounded border border-[#30363d] bg-[#161b22] overflow-hidden">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  onMouseDown={() => addSsid(s)}
+                  className="w-full text-left px-2 py-1.5 text-[11px] font-mono text-[#8b949e]
+                    hover:bg-[#21262d] hover:text-[#e6edf3] transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </>
   )
 }

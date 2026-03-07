@@ -47,7 +47,7 @@ export interface FirewallData  extends Record<string, unknown> { nodeType: 'fire
 export interface NASData       extends Record<string, unknown> { nodeType: 'nas';       label: string; ip?: string; os?: string; capacity?: string; used?: string; protocol?: string; notes?: string }
 export interface CloudData     extends Record<string, unknown> { nodeType: 'cloud';     label: string; provider?: string; service?: string; region?: string; notes?: string }
 export interface ISPData       extends Record<string, unknown> { nodeType: 'isp';       label: string; ip?: string; asn?: string; uplink?: string; notes?: string }
-export interface APWiFiData    extends Record<string, unknown> { nodeType: 'apwifi';    label: string; ip?: string; ssid?: string; band?: string; frequency?: string; notes?: string }
+export interface APWiFiData    extends Record<string, unknown> { nodeType: 'apwifi';    label: string; ip?: string; ssids?: string[]; band?: string; frequency?: string; notes?: string }
 export interface GroupData     extends Record<string, unknown> { nodeType: 'group';     label: string; color?: string }
 export interface CameraData    extends Record<string, unknown> { nodeType: 'camera';    label: string; ip?: string; location?: string; resolution?: string; protocol?: string; ptz?: boolean; outdoor?: boolean; notes?: string }
 
@@ -58,7 +58,7 @@ export interface BaseNodeData extends Record<string, unknown> {
   ip?: string; os?: string; cpu?: string; ram?: string; model?: string; ports?: string
   vlan?: string | number; hypervisor?: string; image?: string; rules?: string; capacity?: string
   protocol?: string; provider?: string; service?: string; region?: string
-  asn?: string; uplink?: string; ssid?: string; band?: string; frequency?: string
+  asn?: string; uplink?: string; ssids?: string[]; band?: string; frequency?: string
   color?: string; notes?: string
   // router extra
   wanIp?: string; lanIp?: string; portCount?: number; tags?: string[]
