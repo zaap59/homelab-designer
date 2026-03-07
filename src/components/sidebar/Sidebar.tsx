@@ -98,7 +98,7 @@ function PaletteItemRow({ type }: { type: NodeType }) {
         <div
           draggable
           onDragStart={onDragStart}
-          className="flex items-center gap-2.5 px-2 py-2 rounded cursor-grab active:cursor-grabbing
+          className="flex items-center gap-2.5 p-1 rounded cursor-grab active:cursor-grabbing
             hover:bg-[#1c2128] transition-colors select-none group"
         >
           <div
