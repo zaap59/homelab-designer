@@ -128,9 +128,12 @@ html, body, #root {
 .react-flow__handle.react-flow__handle-left   { left: 0 !important; }
 .react-flow__handle.react-flow__handle-right  { right: 0 !important; left: auto !important; }
 
-.react-flow__handle:hover {
-  background: #58a6ff !important;
-  border-color: #58a6ff !important;
+.react-flow__handle:hover,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
+  background: #39ff14 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 0 6px #39ff1480 !important;
 }
 
 /* selected: inline styles on the inner div handle this */
