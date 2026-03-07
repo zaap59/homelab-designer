@@ -75,6 +75,7 @@ function RouterFields({ data, update }: FieldProps) {
 }
 
 function SwitchFields({ data, update }: FieldProps) {
+  const portCount = (data.portCount as number | undefined) ?? 8
   return (
     <>
       <Input label="IP de management" value={data.ip ?? ""} placeholder="10.0.0.254"
@@ -85,6 +86,8 @@ function SwitchFields({ data, update }: FieldProps) {
         onChange={(e) => update({ vlan: e.target.value })} />
       <Input label="Vitesse" value={(data.speed as string) ?? ""} placeholder="1G"
         onChange={(e) => update({ speed: e.target.value })} />
+      <PortSpinner label="Ports" value={portCount} min={1} max={24}
+        onChange={(v) => update({ portCount: v })} />
     </>
   )
 }
