@@ -1,7 +1,8 @@
-import { memo } from 'react'
-import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
+import { memo, useEffect } from 'react'
+import { Handle, Position, useUpdateNodeInternals, type NodeProps, type Node } from '@xyflow/react'
 import type { SwitchData } from '@/types'
 import { NodeBase, NodeBody, NodeField, NodeDivider, T } from './NodeBase'
+import { useConnectedHandles } from './useConnectedHandles'
 
 const SwitchIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -17,8 +18,15 @@ const SwitchIcon = () => (
 export const SwitchNode = memo(function SwitchNode({
   id, data, selected,
 }: NodeProps<Node<SwitchData>>) {
-  const portCount = (data.portCount as number | undefined) ?? 8
-  const nodeWidth = Math.max(208, portCount * 13 + 24)
+  const updateNodeInternals = useUpdateNodeInternals()
+  const connected  = useConnectedHandles(id)
+  const portCount  = (data.portCount as number | undefined) ?? 8
+  const downCount  = Math.max(1, portCount - 1)
+  const nodeWidth  = Math.max(208, portCount * 13 + 24)
+
+  useEffect(() => { updateNodeInternals(id) }, [id, portCount, updateNodeInternals])
+
+  const activeStyle = { background: T.green, borderColor: T.green, boxShadow: `0 0 6px ${T.green}80` }
 
   const handles = (
     <>
@@ -27,20 +35,23 @@ export const SwitchNode = memo(function SwitchNode({
         type="target"
         position={Position.Top}
         id="uplink"
-        style={{ left: '50%' }}
+        style={{ left: '50%', ...(connected.has('uplink') ? activeStyle : {}) }}
         title="Uplink"
       />
       {/* Data ports — bottom, distributed */}
-      {Array.from({ length: portCount }, (_, i) => (
-        <Handle
-          key={`port-${i}`}
-          type="source"
-          position={Position.Bottom}
-          id={`port-${i}`}
-          style={{ left: `${((i + 0.5) / portCount) * 100}%` }}
-          title={`Port ${i + 1}`}
-        />
-      ))}
+      {Array.from({ length: downCount }, (_, i) => {
+        const hid = `port-${i}`
+        return (
+          <Handle
+            key={hid}
+            type="source"
+            position={Position.Bottom}
+            id={hid}
+            style={{ left: `${((i + 0.5) / downCount) * 100}%`, ...(connected.has(hid) ? activeStyle : {}) }}
+            title={`Port ${i + 1}`}
+          />
+        )
+      })}
     </>
   )
 
@@ -66,18 +77,23 @@ export const SwitchNode = memo(function SwitchNode({
             {portCount}
           </span>
         </div>
-        {/* Port dots — negative margin cancels body padding (10px each side)
-            so the 100% width matches the node width the handles use */}
-        <div style={{ position: 'relative', height: 10, marginLeft: -10, marginRight: -10 }}>
-          {Array.from({ length: portCount }, (_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              left: `calc(${((i + 0.5) / portCount) * 100}% - 4px)`,
-              width: 8, height: 8, borderRadius: 1,
-              background: T.bg3,
-              border: `1px solid ${T.green}60`,
-            }} />
-          ))}
+        {/* Port dots — explicit nodeWidth + offset -(body padding 10 + card border 1)
+            so the container spans exactly the same reference as the handles */}
+        <div style={{ position: 'relative', height: 10, width: nodeWidth, marginLeft: -11 }}>
+          {Array.from({ length: downCount }, (_, i) => {
+            const on = connected.has(`port-${i}`)
+            return (
+              <div key={i} style={{
+                position: 'absolute',
+                left: `calc(${((i + 0.5) / downCount) * 100}% - 4px)`,
+                width: 8, height: 8, borderRadius: 1,
+                background: on ? T.green : T.bg3,
+                border: `1px solid ${on ? T.green : `${T.green}60`}`,
+                boxShadow: on ? `0 0 4px ${T.green}80` : 'none',
+                transition: 'background 0.15s, box-shadow 0.15s',
+              }} />
+            )
+          })}
         </div>
       </NodeBody>
     </NodeBase>
