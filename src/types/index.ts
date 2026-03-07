@@ -7,7 +7,6 @@ export type NodeType =
   | 'switch'
   | 'server'
   | 'vm'
-  | 'container'
   | 'firewall'
   | 'nas'
   | 'cloud'
@@ -25,7 +24,6 @@ export interface HLabEdgeData extends Record<string, unknown> {
   label?: string
   bandwidth?: string
   protocol?: string
-  directed?: boolean
 }
 
 export const EDGE_META: Record<EdgeType, { label: string; color: string; strokeDasharray?: string; strokeWidth: number }> = {
@@ -42,7 +40,6 @@ export interface RouterData    extends Record<string, unknown> { nodeType: 'rout
 export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; model?: string; speed?: string; notes?: string }
 export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; storage?: string; vmCount?: number; ctCount?: number; notes?: string }
 export interface VMData        extends Record<string, unknown> { nodeType: 'vm';        label: string; ip?: string; os?: string; hypervisor?: string; cpu?: string; ram?: string; disk?: string; vmid?: number; vlan?: number; notes?: string }
-export interface ContainerData extends Record<string, unknown> { nodeType: 'container'; label: string; image?: string; ports?: string; containerId?: string; network?: string; runtime?: string; notes?: string }
 export interface FirewallData  extends Record<string, unknown> { nodeType: 'firewall';  label: string; ip?: string; wan?: string; lan?: string; platform?: string; rules?: string; notes?: string }
 export interface NASData       extends Record<string, unknown> { nodeType: 'nas';       label: string; ip?: string; os?: string; capacity?: string; used?: string; protocol?: string; notes?: string }
 export interface CloudData     extends Record<string, unknown> { nodeType: 'cloud';     label: string; provider?: string; service?: string; region?: string; notes?: string }
@@ -68,8 +65,6 @@ export interface BaseNodeData extends Record<string, unknown> {
   storage?: string; vmCount?: number; ctCount?: number
   // vm extra
   disk?: string; vmid?: number
-  // container extra
-  containerId?: string; network?: string; runtime?: string
   // firewall extra
   wan?: string; lan?: string; platform?: string
   // nas extra
@@ -100,7 +95,7 @@ export interface SidebarSection { id: string; label: string; color: string; type
 
 export const SIDEBAR_SECTIONS: SidebarSection[] = [
   { id: 'network', label: 'Réseau',   color: '#ff6b35', types: ['router', 'switch', 'firewall', 'isp', 'apwifi', 'camera'] },
-  { id: 'compute', label: 'Compute',  color: '#7c4dff', types: ['server', 'vm', 'container'] },
+  { id: 'compute', label: 'Compute',  color: '#7c4dff', types: ['server', 'vm'] },
   { id: 'storage', label: 'Stockage', color: '#ffd740', types: ['nas'] },
   { id: 'cloud',   label: 'Cloud',    color: '#40c4ff', types: ['cloud'] },
   { id: 'layout',  label: 'Layout',   color: '#30363d', types: ['group'] },
@@ -113,7 +108,6 @@ export const NODE_META: Record<NodeType, { label: string; color: string; descrip
   switch:    { label: 'Switch',    color: '#4fc3f7', description: 'Layer 2/3 network switch' },
   server:    { label: 'Server',    color: '#7c4dff', description: 'Physical host / bare metal' },
   vm:        { label: 'VM',        color: '#00e676', description: 'Hypervisor guest' },
-  container: { label: 'Container', color: '#ff4081', description: 'Docker / Podman container' },
   firewall:  { label: 'Firewall',  color: '#ff9100', description: 'Security enforcement layer' },
   nas:       { label: 'NAS',       color: '#ffd740', description: 'Network attached storage' },
   cloud:     { label: 'Cloud',     color: '#40c4ff', description: 'External cloud provider' },

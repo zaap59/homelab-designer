@@ -13,20 +13,6 @@ import { edgeTypes } from '@/components/edges'
 import type { NodeType } from '@/types'
 import { NODE_META } from '@/types'
 
-/* ── SVG markers for directed edges ────────────────────────────────────────── */
-
-function SvgDefs() {
-  return (
-    <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-      <defs>
-        <marker id="hlab-arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e" />
-        </marker>
-      </defs>
-    </svg>
-  )
-}
-
 /* ── Placeholder when canvas is empty ──────────────────────────────────────── */
 
 function EmptyState() {
@@ -107,8 +93,9 @@ export function Canvas() {
     e.preventDefault(); setIsDragOver(false)
     const nodeType = e.dataTransfer.getData('application/homelab-node-type') as NodeType
     if (!nodeType || !NODE_META[nodeType]) return
-    addNode(nodeType, screenToFlowPosition({ x: e.clientX, y: e.clientY }))
-  }, [screenToFlowPosition, addNode])
+    const flowPos = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+    addNode(nodeType, flowPos)
+  }, [screenToFlowPosition, addNode, nodes])
 
   /* ── Minimap node color ────────────────────────────────────────────────── */
 
@@ -128,7 +115,6 @@ export function Canvas() {
     <div ref={wrapperRef} className="flex-1 relative overflow-hidden hlab-canvas-bg"
       style={{ outline: isDragOver ? '2px inset rgba(0,229,255,0.3)' : 'none' }}
     >
-      <SvgDefs />
       {nodes.length === 0 && <EmptyState />}
 
       <ReactFlow

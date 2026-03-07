@@ -132,17 +132,6 @@ function VMFields({ data, update }: FieldProps) {
   )
 }
 
-function ContainerFields({ data, update }: FieldProps) {
-  return (
-    <>
-      <Input label="Image" value={data.image ?? ""} placeholder="nginx:alpine"
-        onChange={(e) => update({ image: e.target.value })} />
-      <Input label="Ports" value={data.ports ?? ""} placeholder="80:80, 443:443"
-        onChange={(e) => update({ ports: e.target.value })} />
-    </>
-  )
-}
-
 function FirewallFields({ data, update }: FieldProps) {
   return (
     <>
@@ -352,7 +341,6 @@ const FIELD_COMPONENTS: Record<NodeType, React.ComponentType<FieldProps>> = {
   switch:    SwitchFields,
   server:    ServerFields,
   vm:        VMFields,
-  container: ContainerFields,
   firewall:  FirewallFields,
   nas:       NASFields,
   cloud:     CloudFields,

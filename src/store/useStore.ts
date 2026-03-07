@@ -68,7 +68,7 @@ let _dragging = false
 
 const DEFAULT_LABELS: Record<NodeType, string> = {
   router: 'router-01', switch: 'sw-core-01', server: 'srv-01', vm: 'vm-01',
-  container: 'nginx-01', firewall: 'fw-edge-01', nas: 'nas-01', cloud: 'cloud-01',
+  firewall: 'fw-edge-01', nas: 'nas-01', cloud: 'cloud-01',
   isp: 'isp-provider', apwifi: 'ap-wifi-01', group: 'VLAN 10', camera: 'cam-01',
 }
 let _nc = 1
@@ -134,7 +134,8 @@ export const useStore = create<StoreState>((set, get) => ({
       type,
       position,
       data: { nodeType: type, label: DEFAULT_LABELS[type] },
-      ...(type === 'group' ? { style: { width: 240, height: 160, zIndex: -1 } } : {}),
+      ...(type === 'group'  ? { style: { width: 240, height: 160, zIndex: -1 } } : {}),
+      ...(type === 'server' ? { style: { width: 208 } } : {}),
     }
     set((s) => ({ nodes: [...s.nodes, newNode] }))
   },

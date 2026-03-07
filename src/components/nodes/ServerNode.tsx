@@ -21,11 +21,11 @@ export const ServerNode = memo(function ServerNode({
     <NodeBase id={id} nodeType="server" label={data.label} selected={selected}
       icon={<ServerIcon />} iconColor={T.amber} width={208}>
       <NodeBody>
-        <NodeField label="IP" value={data.ip} valueColor={T.cyan} />
-        <NodeField label="OS" value={data.os} />
+        <NodeField label="IP"      value={data.ip}      valueColor={T.cyan} />
+        <NodeField label="OS"      value={data.os} />
         {(data.ip || data.os) && (data.cpu || data.ram || data.storage) && <NodeDivider />}
         <NodeField label="CPU"     value={data.cpu} />
-        <NodeField label="RAM"     value={data.ram} valueColor={T.amber} />
+        <NodeField label="RAM"     value={data.ram}     valueColor={T.amber} />
         <NodeField label="Storage" value={data.storage} />
       </NodeBody>
     </NodeBase>

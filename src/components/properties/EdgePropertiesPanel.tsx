@@ -92,22 +92,6 @@ export function EdgePropertiesPanel() {
 
         <Separator />
 
-        {/* Options */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontSize: 11, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Options</div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={data.directed ?? false}
-              onChange={(e) => upd({ directed: e.target.checked })}
-              style={{ accentColor: '#00e5ff', cursor: 'pointer' }}
-            />
-            <span style={{ fontSize: 12, color: '#8b949e' }}>Flèche directionnelle</span>
-          </label>
-        </div>
-
-        <Separator />
-
         {/* Delete */}
         <button
           onClick={() => { deleteEdge(selectedEdgeId); setSelectedEdge(null) }}
