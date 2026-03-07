@@ -38,7 +38,8 @@ export const EDGE_META: Record<EdgeType, { label: string; color: string; strokeD
 
 export interface RouterData    extends Record<string, unknown> { nodeType: 'router';    label: string; wanIp?: string; lanIp?: string; ip?: string; model?: string; os?: string; portCount?: number; tags?: string[]; notes?: string }
 export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; model?: string; speed?: string; notes?: string }
-export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; storage?: string; vmCount?: number; ctCount?: number; notes?: string }
+export interface ServiceEntry { id: string; name: string; image?: string; ip?: string; isContainer?: boolean }
+export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; storage?: string; vmCount?: number; ctCount?: number; services?: ServiceEntry[]; notes?: string }
 export interface VMData        extends Record<string, unknown> { nodeType: 'vm';        label: string; ip?: string; os?: string; hypervisor?: string; cpu?: string; ram?: string; disk?: string; vmid?: number; vlan?: number; notes?: string }
 export interface FirewallData  extends Record<string, unknown> { nodeType: 'firewall';  label: string; ip?: string; wan?: string; lan?: string; platform?: string; rules?: string; notes?: string }
 export interface NASData       extends Record<string, unknown> { nodeType: 'nas';       label: string; ip?: string; os?: string; capacity?: string; used?: string; protocol?: string; notes?: string }
@@ -62,7 +63,7 @@ export interface BaseNodeData extends Record<string, unknown> {
   // switch extra
   speed?: string
   // server extra
-  storage?: string; vmCount?: number; ctCount?: number
+  storage?: string; vmCount?: number; ctCount?: number; services?: ServiceEntry[]
   // vm extra
   disk?: string; vmid?: number
   // firewall extra
