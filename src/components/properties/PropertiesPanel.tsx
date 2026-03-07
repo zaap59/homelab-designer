@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { X, Settings, AlertTriangle, Plus, Minus } from "lucide-react"
+import { X, Settings, AlertTriangle, Plus, Minus, Pencil, Check, Container } from "lucide-react"
 import { useStore } from "@/store/useStore"
 import { NODE_META } from "@/types"
 import type { NodeType, BaseNodeData } from "@/types"
@@ -89,7 +89,91 @@ function SwitchFields({ data, update }: FieldProps) {
   )
 }
 
+type ServiceDraft = { name: string; image: string; ip: string; isContainer: boolean }
+const EMPTY_DRAFT: ServiceDraft = { name: '', image: '', ip: '', isContainer: false }
+
+function ServiceForm({
+  initial, onSave, onCancel, saveLabel,
+}: {
+  initial: ServiceDraft
+  onSave: (d: ServiceDraft) => void
+  onCancel?: () => void
+  saveLabel: string
+}) {
+  const [d, setD] = useState<ServiceDraft>(initial)
+  const valid = d.name.trim().length > 0
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <Input label="Nom" value={d.name} placeholder="nginx"
+        onChange={(e) => setD((p) => ({ ...p, name: e.target.value }))} />
+      <Input label="Image" value={d.image} placeholder="nginx:alpine"
+        onChange={(e) => setD((p) => ({ ...p, image: e.target.value }))} />
+      <Input label="IP" value={d.ip} placeholder="172.17.0.2"
+        onChange={(e) => setD((p) => ({ ...p, ip: e.target.value }))} />
+      <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+        <input type="checkbox" checked={d.isContainer} onChange={(e) => setD((p) => ({ ...p, isContainer: e.target.checked }))}
+          style={{ accentColor: '#ff4081', cursor: 'pointer' }} />
+        <span style={{ fontSize: 11, color: '#8b949e', fontFamily: '"JetBrains Mono", monospace' }}>Container</span>
+      </label>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button onClick={() => { if (valid) onSave(d) }} disabled={!valid} style={{
+          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+          padding: '5px 0', borderRadius: 4, cursor: valid ? 'pointer' : 'not-allowed',
+          border: `1px solid ${valid ? '#ff408140' : '#30363d'}`,
+          background: valid ? '#ff408115' : 'transparent',
+          color: valid ? '#ff4081' : '#484f58',
+          fontSize: 11, fontFamily: '"JetBrains Mono", monospace', transition: 'all 0.1s',
+        }}>
+          <Check size={10} /> {saveLabel}
+        </button>
+        {onCancel && (
+          <button onClick={onCancel} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '5px 10px', borderRadius: 4, cursor: 'pointer',
+            border: '1px solid #30363d', background: 'transparent',
+            color: '#484f58', fontSize: 11, fontFamily: '"JetBrains Mono", monospace',
+          }}>
+            <X size={10} />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ServerFields({ data, update }: FieldProps) {
+  const services = (data.services as import('@/types').ServiceEntry[] | undefined) ?? []
+  const [editingId, setEditingId] = useState<string | null>(null)
+
+  const addService = (d: ServiceDraft) => {
+    const entry: import('@/types').ServiceEntry = {
+      id: `svc-${Date.now()}`,
+      name: d.name.trim(),
+      image: d.image.trim() || undefined,
+      ip: d.ip.trim() || undefined,
+      isContainer: d.isContainer || undefined,
+    }
+    update({ services: [...services, entry] })
+  }
+
+  const saveEdit = (id: string, d: ServiceDraft) => {
+    update({
+      services: services.map((s) => s.id !== id ? s : {
+        ...s,
+        name: d.name.trim(),
+        image: d.image.trim() || undefined,
+        ip: d.ip.trim() || undefined,
+        isContainer: d.isContainer || undefined,
+      }),
+    })
+    setEditingId(null)
+  }
+
+  const removeService = (id: string) => {
+    update({ services: services.filter((s) => s.id !== id) })
+    if (editingId === id) setEditingId(null)
+  }
+
   return (
     <>
       <Input label="IP" value={data.ip ?? ""} placeholder="10.0.1.10"
@@ -100,6 +184,56 @@ function ServerFields({ data, update }: FieldProps) {
         onChange={(e) => update({ cpu: e.target.value })} />
       <Input label="RAM" value={data.ram ?? ""} placeholder="64 GB"
         onChange={(e) => update({ ram: e.target.value })} />
+
+      {/* ── Services ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+        <div style={{ fontSize: 11, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Services</div>
+
+        {services.map((svc) => (
+          <div key={svc.id} style={{
+            borderRadius: 5, border: '1px solid #21262d', background: '#0d1117', overflow: 'hidden',
+          }}>
+            {editingId === svc.id ? (
+              <div style={{ padding: 8 }}>
+                <ServiceForm
+                  initial={{ name: svc.name, image: svc.image ?? '', ip: svc.ip ?? '', isContainer: svc.isContainer ?? false }}
+                  onSave={(d) => saveEdit(svc.id, d)}
+                  onCancel={() => setEditingId(null)}
+                  saveLabel="Sauvegarder"
+                />
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px' }}>
+                <div style={{ flex: 1, minWidth: 0, fontFamily: '"JetBrains Mono", monospace' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    {svc.isContainer && <Container size={10} style={{ color: '#ff4081', flexShrink: 0 }} />}
+                    <span style={{ fontSize: 11, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.name}</span>
+                  </div>
+                  {svc.image && <div style={{ fontSize: 10, color: '#ff4081', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{svc.image}</div>}
+                  {svc.ip    && <div style={{ fontSize: 10, color: '#4fc3f7' }}>{svc.ip}</div>}
+                </div>
+                <button onClick={() => setEditingId(svc.id)} style={{
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#484f58',
+                  padding: 2, display: 'flex', alignItems: 'center', flexShrink: 0,
+                }}>
+                  <Pencil size={10} />
+                </button>
+                <button onClick={() => removeService(svc.id)} style={{
+                  background: 'none', border: 'none', cursor: 'pointer', color: '#484f58',
+                  padding: 2, display: 'flex', alignItems: 'center', flexShrink: 0,
+                }}>
+                  <X size={10} />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Add new service */}
+        <div style={{ padding: 8, borderRadius: 5, border: '1px dashed #30363d', background: '#0d1117' }}>
+          <ServiceForm initial={EMPTY_DRAFT} onSave={addService} saveLabel="Ajouter" />
+        </div>
+      </div>
     </>
   )
 }
@@ -128,17 +262,6 @@ function VMFields({ data, update }: FieldProps) {
         <Input label="RAM" value={data.ram ?? ""} placeholder="8 GB"
           onChange={(e) => update({ ram: e.target.value })} />
       </div>
-    </>
-  )
-}
-
-function ContainerFields({ data, update }: FieldProps) {
-  return (
-    <>
-      <Input label="Image" value={data.image ?? ""} placeholder="nginx:alpine"
-        onChange={(e) => update({ image: e.target.value })} />
-      <Input label="Ports" value={data.ports ?? ""} placeholder="80:80, 443:443"
-        onChange={(e) => update({ ports: e.target.value })} />
     </>
   )
 }
@@ -352,7 +475,6 @@ const FIELD_COMPONENTS: Record<NodeType, React.ComponentType<FieldProps>> = {
   switch:    SwitchFields,
   server:    ServerFields,
   vm:        VMFields,
-  container: ContainerFields,
   firewall:  FirewallFields,
   nas:       NASFields,
   cloud:     CloudFields,

@@ -62,7 +62,6 @@ export function HLabEdgeComponent({
           transition: 'stroke 0.15s, stroke-width 0.15s',
           cursor: 'pointer',
         }}
-        markerEnd={data?.directed ? 'url(#hlab-arrow)' : undefined}
         onClick={handleClick}
       />
 

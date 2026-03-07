@@ -36,11 +36,6 @@ const NodeIcon = ({ type, color }: { type: NodeType; color: string }) => {
         <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" />
       </svg>
     )
-    case "container": return (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 12.5c0 .3-.2.7-.6.9-1.4.8-5 2.6-8.4 2.6S5 14.2 3.6 13.4C3.2 13.2 3 12.8 3 12.5V8l9-4 10 4v4.5Z" />
-      </svg>
-    )
     case "firewall": return (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2L4 6v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6L12 2Z" />

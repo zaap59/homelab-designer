@@ -2,7 +2,6 @@ import { RouterNode }    from './RouterNode'
 import { SwitchNode }    from './SwitchNode'
 import { ServerNode }    from './ServerNode'
 import { VMNode }        from './VMNode'
-import { ContainerNode } from './ContainerNode'
 import { FirewallNode }  from './FirewallNode'
 import { NASNode }       from './NASNode'
 import { CloudNode }     from './CloudNode'
@@ -13,7 +12,7 @@ import { CameraNode }    from './CameraNode'
 
 export {
   RouterNode, SwitchNode, ServerNode, VMNode,
-  ContainerNode, FirewallNode, NASNode, CloudNode,
+  FirewallNode, NASNode, CloudNode,
   ISPNode, APWiFiNode, GroupNode, CameraNode,
 }
 
@@ -22,7 +21,6 @@ export const nodeTypes = {
   switch:    SwitchNode,
   server:    ServerNode,
   vm:        VMNode,
-  container: ContainerNode,
   firewall:  FirewallNode,
   nas:       NASNode,
   cloud:     CloudNode,
