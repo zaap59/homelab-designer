@@ -1,34 +1,14 @@
 import { memo, useState, useCallback } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import { Trash2, Pencil, Check, X } from 'lucide-react'
-import { cn } from '@/utils/cn'
 import { useStore } from '@/store/useStore'
 import { NODE_META } from '@/types'
 import type { NodeType } from '@/types'
+import { T, STATUS_STYLE } from './shared'
 
-// ─── NodeField sub-component ──────────────────────────────────────────────────
-
-export interface NodeFieldDef {
-  label: string
-  value: string
-  color?: string
-}
-
-function NodeField({ label, value, color }: NodeFieldDef) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[8px] uppercase tracking-widest text-[#484f58]">
-        {label}
-      </span>
-      <span
-        className="text-[11px] font-mono truncate"
-        style={{ color: color ?? '#c9d1d9' }}
-      >
-        {value}
-      </span>
-    </div>
-  )
-}
+// ─── Re-export primitives for node components ─────────────────────────────────
+export { NodeField, NodeBody, NodeDivider, NodeTag, NodeTags, T } from './shared'
+export type { TagVariant } from './shared'
 
 // ─── NodeBaseProps ────────────────────────────────────────────────────────────
 
@@ -37,14 +17,19 @@ export interface NodeBaseProps {
   nodeType: NodeType
   label: string
   selected?: boolean
+  /** SVG icon element */
   icon: React.ReactNode
-  /** Vertical stacked fields (label above, value below) */
-  fields?: NodeFieldDef[]
-  /** Tag chips at the bottom */
-  tags?: string[]
+  /** Stroke/fill color of the icon */
+  iconColor: string
+  /** Status dot variant */
+  status?: 'online' | 'offline' | 'warn'
+  /** Node width in px */
+  width?: number
+  /** Body + port section content */
   children?: React.ReactNode
-  minWidth?: number
-  /** When true, no default 4 handles are rendered — node manages its own */
+  /** Custom handles rendered outside the inner visual div (direct children of root) */
+  handles?: React.ReactNode
+  /** When true, no default 4 handles are rendered */
   customHandles?: boolean
 }
 
@@ -56,171 +41,113 @@ export const NodeBase = memo(function NodeBase({
   label,
   selected,
   icon,
-  fields = [],
-  tags = [],
+  iconColor,
+  status = 'online',
+  width = 221,
   children,
-  minWidth = 160,
+  handles,
   customHandles = false,
 }: NodeBaseProps) {
-  const meta  = NODE_META[nodeType]
-  const color = meta.color
+  const meta = NODE_META[nodeType]
 
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(label)
-  const updateNodeData  = useStore((s) => s.updateNodeData)
-  const deleteNode      = useStore((s) => s.deleteNode)
-  const setSelectedNode = useStore((s) => s.setSelectedNode)
+  const [editing, setEditing]   = useState(false)
+  const [draft, setDraft]       = useState(label)
+  const updateNodeData          = useStore((s) => s.updateNodeData)
+  const deleteNode              = useStore((s) => s.deleteNode)
+  const setSelectedNode         = useStore((s) => s.setSelectedNode)
 
-  const startEdit = useCallback(() => { setDraft(label); setEditing(true) }, [label])
-
+  const startEdit   = useCallback(() => { setDraft(label); setEditing(true) }, [label])
   const confirmEdit = useCallback(() => {
     if (draft.trim()) updateNodeData(id, { label: draft.trim() })
     setEditing(false)
   }, [draft, id, updateNodeData])
+  const cancelEdit  = useCallback(() => { setDraft(label); setEditing(false) }, [label])
 
-  const cancelEdit = useCallback(() => { setDraft(label); setEditing(false) }, [label])
+  const statusStyle = STATUS_STYLE[status] ?? STATUS_STYLE.online
 
   return (
     <div
-      className={cn(
-        'relative flex flex-col rounded-lg border transition-all duration-150 group hlab-node-enter',
-        'bg-[#161b22]',
-        selected
-          ? 'border-[#00e5ff] shadow-[0_0_0_1px_#00e5ff,0_0_24px_rgba(0,229,255,0.18)]'
-          : 'border-[#30363d] hover:border-[#484f58]',
-      )}
-      style={{ minWidth, fontFamily: '"JetBrains Mono", monospace' }}
+      className="hlab-node hlab-node-enter"
+      style={{ width }}
       onDoubleClick={startEdit}
       onClick={() => setSelectedNode(id)}
     >
-      {/* ── Top color strip ────────────────────────────────────────────────── */}
-      <div className="h-[3px] rounded-t-[7px]" style={{ background: color }} />
+      {/* ── Inner visual card ─────────────────────────────────────────────── */}
+      <div className="hlab-node-card" data-selected={selected || undefined}>
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
-        {/* Icon box */}
-        <div
-          className="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
-          style={{ background: `${color}18`, border: `1px solid ${color}35` }}
-        >
-          {icon}
+        {/* Header */}
+        <div className="hlab-node-header">
+          <div className="hlab-node-icon" style={{ color: iconColor }}>{icon}</div>
+          <div className="hlab-node-info">
+            {meta?.label && <div className="hlab-node-type">{meta.label}</div>}
+            {editing ? (
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') confirmEdit()
+                  if (e.key === 'Escape') cancelEdit()
+                }}
+                className="hlab-node-edit-input nodrag"
+              />
+            ) : (
+              <div className="hlab-node-label">{label}</div>
+            )}
+          </div>
+          <div className="hlab-node-status" style={statusStyle} />
         </div>
 
-        {/* Type label + node name */}
-        <div className="flex-1 min-w-0">
-          <span
-            className="block text-[8px] uppercase tracking-widest font-semibold mb-0.5"
-            style={{ color: `${color}cc` }}
-          >
-            {meta.label}
-          </span>
-          {editing ? (
-            <input
-              autoFocus
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') confirmEdit()
-                if (e.key === 'Escape') cancelEdit()
-              }}
-              className="w-full bg-[#0d1117] border border-[#00e5ff] rounded px-1 py-0.5
-                text-[11px] text-[#e6edf3] outline-none nodrag"
-              style={{ fontFamily: 'inherit' }}
-            />
-          ) : (
-            <span className="block truncate text-[12px] font-semibold text-[#e6edf3]">
-              {label}
-            </span>
-          )}
-        </div>
-
-        {/* Status dot */}
-        <div
-          className="w-2 h-2 rounded-full shrink-0 mt-0.5"
-          style={{ background: color, boxShadow: `0 0 5px ${color}80` }}
-        />
+        {/* Body / children */}
+        {children}
       </div>
 
-      {/* ── Vertical fields section ────────────────────────────────────────── */}
-      {fields.length > 0 && (
-        <>
-          <div className="mx-3 border-t border-[#21262d]" />
-          <div className="px-3 py-2 space-y-2">
-            {fields.map((f) => (
-              <NodeField key={f.label} {...f} />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* ── Tag chips ──────────────────────────────────────────────────────── */}
-      {tags.length > 0 && (
-        <>
-          <div className="mx-3 border-t border-[#21262d]" />
-          <div className="flex flex-wrap gap-1 px-3 py-2">
-            {tags.map((t) => (
-              <span
-                key={t}
-                className="text-[8px] px-1.5 py-0.5 rounded border"
-                style={{ borderColor: `${color}40`, color, background: `${color}12` }}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* ── Extra children slot (port grid, etc.) ─────────────────────────── */}
-      {children && (
-        <div className="border-t border-[#21262d]">{children}</div>
-      )}
-
-      {/* ── Action bar ────────────────────────────────────────────────────── */}
+      {/* ── Action bar (hover) ────────────────────────────────────────────── */}
       {!editing && (
-        <div className="absolute top-1.5 right-1.5 hidden group-hover:flex items-center gap-0.5
-          bg-[#1c2128] border border-[#30363d] rounded px-1 py-0.5 z-20 shadow-md">
-          <button
-            title="Renommer"
-            onClick={(e) => { e.stopPropagation(); startEdit() }}
-            className="flex items-center justify-center w-5 h-5 rounded text-[#8b949e]
-              hover:text-[#00e5ff] hover:bg-[#00e5ff14] transition-colors nodrag"
-          >
-            <Pencil size={10} />
-          </button>
-          <button
-            title="Supprimer"
-            onClick={(e) => { e.stopPropagation(); deleteNode(id) }}
-            className="flex items-center justify-center w-5 h-5 rounded text-[#8b949e]
-              hover:text-[#f85149] hover:bg-[#f8514914] transition-colors nodrag"
-          >
-            <Trash2 size={10} />
-          </button>
+        <div className="group" style={{ position: 'absolute', top: 6, right: 6, zIndex: 20 }}>
+          <div className="hlab-action-bar hlab-node-bar" style={{ opacity: 0 }}>
+            <button
+              title="Renommer"
+              onClick={(e) => { e.stopPropagation(); startEdit() }}
+              className="nodrag hlab-action-btn hlab-node-bar-btn"
+              style={{ color: T.textDim }}
+            >
+              <Pencil size={9} />
+            </button>
+            <button
+              title="Supprimer"
+              onClick={(e) => { e.stopPropagation(); deleteNode(id) }}
+              className="nodrag hlab-action-btn hlab-action-btn--danger hlab-node-bar-btn"
+              style={{ color: T.textDim }}
+            >
+              <Trash2 size={9} />
+            </button>
+          </div>
         </div>
       )}
 
       {/* ── Edit confirm bar ──────────────────────────────────────────────── */}
       {editing && (
-        <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5
-          bg-[#1c2128] border border-[#30363d] rounded px-1 py-0.5 z-20">
-          <button onClick={confirmEdit}
-            className="flex items-center justify-center w-5 h-5 rounded text-[#3fb950] hover:bg-[#3fb95014] nodrag">
-            <Check size={10} />
+        <div className="hlab-node-bar">
+          <button onClick={confirmEdit} className="nodrag hlab-node-bar-btn" style={{ color: '#3fb950' }}>
+            <Check size={9} />
           </button>
-          <button onClick={cancelEdit}
-            className="flex items-center justify-center w-5 h-5 rounded text-[#f85149] hover:bg-[#f8514914] nodrag">
-            <X size={10} />
+          <button onClick={cancelEdit} className="nodrag hlab-node-bar-btn" style={{ color: '#f85149' }}>
+            <X size={9} />
           </button>
         </div>
       )}
 
+      {/* ── Custom handles (passed via prop) ─────────────────────────────── */}
+      {handles}
+
       {/* ── Default 4 handles ─────────────────────────────────────────────── */}
       {!customHandles && (
         <>
-          <Handle type="target" position={Position.Top}    id="top"    className="!-top-[5px]" />
-          <Handle type="source" position={Position.Bottom} id="bottom" className="!-bottom-[5px]" />
-          <Handle type="source" position={Position.Right}  id="right"  className="!-right-[5px]" />
-          <Handle type="target" position={Position.Left}   id="left"   className="!-left-[5px]" />
+          <Handle type="target" position={Position.Top}    id="top" />
+          <Handle type="source" position={Position.Bottom} id="bottom" />
+          <Handle type="source" position={Position.Right}  id="right" />
+          <Handle type="target" position={Position.Left}   id="left" />
         </>
       )}
     </div>

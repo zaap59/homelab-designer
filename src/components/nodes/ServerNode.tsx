@@ -1,31 +1,33 @@
 import { memo } from 'react'
 import type { NodeProps, Node } from '@xyflow/react'
 import type { ServerData } from '@/types'
-import { NodeBase } from './NodeBase'
+import { NodeBase, NodeBody, NodeField, NodeDivider, T } from './NodeBase'
 
-const ServerIcon = ({ color }: { color: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="2" width="20" height="8" rx="2" />
-    <rect x="2" y="14" width="20" height="8" rx="2" />
-    <circle cx="6" cy="6" r="1" fill={color} stroke="none" />
-    <circle cx="6" cy="18" r="1" fill={color} stroke="none" />
-    <line x1="10" y1="6" x2="18" y2="6" strokeWidth="1.5" />
-    <line x1="10" y1="18" x2="18" y2="18" strokeWidth="1.5" />
+const ServerIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="3" width="20" height="5" rx="1"/>
+    <rect x="2" y="10" width="20" height="5" rx="1"/>
+    <rect x="2" y="17" width="20" height="5" rx="1"/>
+    <circle cx="18" cy="5.5" r="1" fill="currentColor"/>
+    <circle cx="18" cy="12.5" r="1" fill="currentColor"/>
+    <circle cx="18" cy="19.5" r="1" fill="currentColor"/>
   </svg>
 )
 
 export const ServerNode = memo(function ServerNode({
   id, data, selected,
 }: NodeProps<Node<ServerData>>) {
-  const color = '#7c4dff'
-  const fields = []
-  if (data.ip)  fields.push({ label: 'IP',  value: data.ip,  color: '#7c4dff' })
-  if (data.os)  fields.push({ label: 'OS',  value: data.os })
-  if (data.cpu) fields.push({ label: 'CPU', value: data.cpu })
-  if (data.ram) fields.push({ label: 'RAM', value: data.ram })
-
   return (
     <NodeBase id={id} nodeType="server" label={data.label} selected={selected}
-      icon={<ServerIcon color={color} />} fields={fields} />
+      icon={<ServerIcon />} iconColor={T.amber} width={208}>
+      <NodeBody>
+        <NodeField label="IP" value={data.ip} valueColor={T.cyan} />
+        <NodeField label="OS" value={data.os} />
+        <NodeDivider />
+        <NodeField label="CPU"     value={data.cpu} />
+        <NodeField label="RAM"     value={data.ram} valueColor={T.amber} />
+        <NodeField label="Storage" value={data.storage} />
+      </NodeBody>
+    </NodeBase>
   )
 })

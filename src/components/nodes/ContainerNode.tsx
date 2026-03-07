@@ -1,26 +1,35 @@
 import { memo } from 'react'
 import type { NodeProps, Node } from '@xyflow/react'
 import type { ContainerData } from '@/types'
-import { NodeBase } from './NodeBase'
+import { NodeBase, NodeBody, NodeField, NodeDivider, NodeTag, NodeTags, T } from './NodeBase'
 
-// Docker-inspired icon
-const ContainerIcon = ({ color }: { color: string }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 12.5c0 .3-.2.7-.6.9-1.4.8-5 2.6-8.4 2.6S5 14.2 3.6 13.4C3.2 13.2 3 12.8 3 12.5V8l9-4 10 4v4.5Z" />
-    <path d="M12 4.5v11M7 7l5-2.5M17 7l-5-2.5" strokeWidth="1.2" />
+const ContainerIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+    <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+    <line x1="12" y1="12" x2="12.01" y2="12" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
 
 export const ContainerNode = memo(function ContainerNode({
   id, data, selected,
 }: NodeProps<Node<ContainerData>>) {
-  const color = '#ff4081'
-  const fields = []
-  if (data.image) fields.push({ label: 'Image', value: data.image, color: '#ff4081' })
-  if (data.ports) fields.push({ label: 'Ports', value: data.ports })
-
+  const shortId = (data.containerId ?? '').substring(0, 8) || undefined
   return (
     <NodeBase id={id} nodeType="container" label={data.label} selected={selected}
-      icon={<ContainerIcon color={color} />} fields={fields} />
+      icon={<ContainerIcon />} iconColor={T.pink} width={221}>
+      <NodeBody>
+        <NodeField label="Image"         value={data.image}   valueColor={T.pink} />
+        <NodeField label="Container ID"  value={shortId}      valueColor={T.textDim} />
+        <NodeDivider />
+        <NodeField label="Exposed Ports" value={data.ports} />
+        <NodeDivider />
+        <NodeField label="Network"       value={data.network} />
+        <NodeTags>
+          <NodeTag variant="pink">{data.runtime ?? 'Docker'}</NodeTag>
+          <NodeTag variant="cyan">container</NodeTag>
+        </NodeTags>
+      </NodeBody>
+    </NodeBase>
   )
 })

@@ -14,6 +14,7 @@ export type NodeType =
   | 'isp'
   | 'apwifi'
   | 'group'
+  | 'camera'
 
 // ─── Edge Types ────────────────────────────────────────────────────────────────
 
@@ -38,30 +39,43 @@ export const EDGE_META: Record<EdgeType, { label: string; color: string; strokeD
 // ─── Per-Node Data Interfaces ──────────────────────────────────────────────────
 
 export interface RouterData    extends Record<string, unknown> { nodeType: 'router';    label: string; wanIp?: string; lanIp?: string; ip?: string; model?: string; os?: string; portCount?: number; tags?: string[]; notes?: string }
-export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; model?: string; speed?: string; rj45Count?: number; sfpCount?: number; connectedPorts?: number[]; notes?: string }
-export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; notes?: string }
-export interface VMData        extends Record<string, unknown> { nodeType: 'vm';        label: string; ip?: string; os?: string; hypervisor?: string; cpu?: string; ram?: string; notes?: string }
-export interface ContainerData extends Record<string, unknown> { nodeType: 'container'; label: string; image?: string; ports?: string; notes?: string }
-export interface FirewallData  extends Record<string, unknown> { nodeType: 'firewall';  label: string; ip?: string; rules?: string; notes?: string }
-export interface NASData       extends Record<string, unknown> { nodeType: 'nas';       label: string; ip?: string; capacity?: string; protocol?: string; notes?: string }
+export interface SwitchData    extends Record<string, unknown> { nodeType: 'switch';    label: string; ip?: string; ports?: string; vlan?: string; model?: string; speed?: string; notes?: string }
+export interface ServerData    extends Record<string, unknown> { nodeType: 'server';    label: string; ip?: string; os?: string; cpu?: string; ram?: string; storage?: string; vmCount?: number; ctCount?: number; notes?: string }
+export interface VMData        extends Record<string, unknown> { nodeType: 'vm';        label: string; ip?: string; os?: string; hypervisor?: string; cpu?: string; ram?: string; disk?: string; vmid?: number; vlan?: number; notes?: string }
+export interface ContainerData extends Record<string, unknown> { nodeType: 'container'; label: string; image?: string; ports?: string; containerId?: string; network?: string; runtime?: string; notes?: string }
+export interface FirewallData  extends Record<string, unknown> { nodeType: 'firewall';  label: string; ip?: string; wan?: string; lan?: string; platform?: string; rules?: string; notes?: string }
+export interface NASData       extends Record<string, unknown> { nodeType: 'nas';       label: string; ip?: string; os?: string; capacity?: string; used?: string; protocol?: string; notes?: string }
 export interface CloudData     extends Record<string, unknown> { nodeType: 'cloud';     label: string; provider?: string; service?: string; region?: string; notes?: string }
 export interface ISPData       extends Record<string, unknown> { nodeType: 'isp';       label: string; ip?: string; asn?: string; uplink?: string; notes?: string }
-export interface APWiFiData    extends Record<string, unknown> { nodeType: 'apwifi';    label: string; ip?: string; ssid?: string; band?: string; frequency?: string; notes?: string }
+export interface APWiFiData    extends Record<string, unknown> { nodeType: 'apwifi';    label: string; ip?: string; ssids?: string[]; band?: string; frequency?: string; notes?: string }
 export interface GroupData     extends Record<string, unknown> { nodeType: 'group';     label: string; color?: string }
+export interface CameraData    extends Record<string, unknown> { nodeType: 'camera';    label: string; ip?: string; location?: string; resolution?: string; protocol?: string; ptz?: boolean; outdoor?: boolean; notes?: string }
 
 // ─── BaseNodeData (union of all fields) ───────────────────────────────────────
 
 export interface BaseNodeData extends Record<string, unknown> {
   nodeType: NodeType; label: string
   ip?: string; os?: string; cpu?: string; ram?: string; model?: string; ports?: string
-  vlan?: string; hypervisor?: string; image?: string; rules?: string; capacity?: string
+  vlan?: string | number; hypervisor?: string; image?: string; rules?: string; capacity?: string
   protocol?: string; provider?: string; service?: string; region?: string
-  asn?: string; uplink?: string; ssid?: string; band?: string; frequency?: string
+  asn?: string; uplink?: string; ssids?: string[]; band?: string; frequency?: string
   color?: string; notes?: string
   // router extra
   wanIp?: string; lanIp?: string; portCount?: number; tags?: string[]
   // switch extra
-  speed?: string; rj45Count?: number; sfpCount?: number; connectedPorts?: number[]
+  speed?: string
+  // server extra
+  storage?: string; vmCount?: number; ctCount?: number
+  // vm extra
+  disk?: string; vmid?: number
+  // container extra
+  containerId?: string; network?: string; runtime?: string
+  // firewall extra
+  wan?: string; lan?: string; platform?: string
+  // nas extra
+  used?: string
+  // camera extra
+  location?: string; resolution?: string; ptz?: boolean; outdoor?: boolean
 }
 
 // ─── React Flow aliases ────────────────────────────────────────────────────────
@@ -85,7 +99,7 @@ export interface DiagramState {
 export interface SidebarSection { id: string; label: string; color: string; types: NodeType[] }
 
 export const SIDEBAR_SECTIONS: SidebarSection[] = [
-  { id: 'network', label: 'Réseau',   color: '#ff6b35', types: ['router', 'switch', 'firewall', 'isp', 'apwifi'] },
+  { id: 'network', label: 'Réseau',   color: '#ff6b35', types: ['router', 'switch', 'firewall', 'isp', 'apwifi', 'camera'] },
   { id: 'compute', label: 'Compute',  color: '#7c4dff', types: ['server', 'vm', 'container'] },
   { id: 'storage', label: 'Stockage', color: '#ffd740', types: ['nas'] },
   { id: 'cloud',   label: 'Cloud',    color: '#40c4ff', types: ['cloud'] },
@@ -106,4 +120,5 @@ export const NODE_META: Record<NodeType, { label: string; color: string; descrip
   isp:       { label: 'ISP',       color: '#e040fb', description: 'Internet Service Provider' },
   apwifi:    { label: 'AP WiFi',   color: '#69ff47', description: 'Wireless access point' },
   group:     { label: 'Group',     color: '#30363d', description: 'Visual group / zone' },
+  camera:    { label: 'Camera',    color: '#f97316', description: 'IP surveillance camera' },
 }
