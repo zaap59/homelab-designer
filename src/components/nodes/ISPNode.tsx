@@ -19,7 +19,7 @@ export const ISPNode = memo(function ISPNode({
       <NodeBody>
         <NodeField label="ASN"    value={data.asn}    valueColor={T.magenta} />
         <NodeField label="Uplink" value={data.uplink} />
-        <NodeDivider />
+        {(data.asn || data.uplink) && data.ip && <NodeDivider />}
         <NodeField label="IP"     value={data.ip}     valueColor={T.cyan} />
         <NodeTags>
           <NodeTag variant="purple">ISP</NodeTag>

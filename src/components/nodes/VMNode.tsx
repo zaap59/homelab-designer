@@ -21,11 +21,11 @@ export const VMNode = memo(function VMNode({
       <NodeBody>
         <NodeField label="IP"          value={data.ip}         valueColor={T.cyan} />
         <NodeField label="OS"          value={data.os} />
-        <NodeDivider />
+        {(data.ip || data.os) && (cpuRam || data.disk || data.hypervisor) && <NodeDivider />}
         <NodeField label="vCPU / RAM"  value={cpuRam}          valueColor={T.purple} />
         <NodeField label="Disk"        value={data.disk} />
         <NodeField label="Hypervisor"  value={data.hypervisor} />
-        <NodeDivider />
+        {(data.ip || data.os || cpuRam || data.disk || data.hypervisor) && (data.vmid != null || data.vlan != null) && <NodeDivider />}
         <NodeTags>
           {data.vmid != null && <NodeTag variant="purple">VMID {data.vmid}</NodeTag>}
           {data.vlan != null && <NodeTag variant="cyan">VLAN {data.vlan}</NodeTag>}

@@ -23,10 +23,10 @@ export const NASNode = memo(function NASNode({
       <NodeBody>
         <NodeField label="IP"       value={data.ip}       valueColor={T.cyan} />
         <NodeField label="OS"       value={data.os} />
-        <NodeDivider />
+        {(data.ip || data.os) && (data.capacity || data.used) && <NodeDivider />}
         <NodeField label="Capacity" value={data.capacity} valueColor={T.blue} />
         <NodeField label="Used"     value={data.used} />
-        <NodeDivider />
+        {(data.ip || data.os || data.capacity || data.used) && data.protocol && <NodeDivider />}
         {data.protocol && (
           <NodeTags>
             <NodeTag variant="blue">{data.protocol}</NodeTag>

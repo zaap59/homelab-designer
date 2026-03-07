@@ -320,6 +320,33 @@ function GroupFields({ data, update }: FieldProps) {
   )
 }
 
+function CameraFields({ data, update }: FieldProps) {
+  return (
+    <>
+      <Input label="IP" value={data.ip ?? ""} placeholder="192.168.1.x"
+        onChange={(e) => update({ ip: e.target.value })} />
+      <Input label="Emplacement" value={data.location ?? ""} placeholder="Entrée, couloir..."
+        onChange={(e) => update({ location: e.target.value })} />
+      <Input label="Résolution" value={data.resolution ?? ""} placeholder="1080p, 4K..."
+        onChange={(e) => update({ resolution: e.target.value })} />
+      <Input label="Protocole" value={data.protocol ?? ""} placeholder="RTSP, ONVIF..."
+        onChange={(e) => update({ protocol: e.target.value })} />
+      <div className="flex flex-col gap-1.5">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={!!(data.ptz)} onChange={(e) => update({ ptz: e.target.checked })}
+            className="w-3.5 h-3.5 accent-[#ffaa00]" />
+          <span className="text-[11px] uppercase tracking-widest text-[#8b949e] font-semibold">PTZ</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={!!(data.outdoor)} onChange={(e) => update({ outdoor: e.target.checked })}
+            className="w-3.5 h-3.5 accent-[#39ff14]" />
+          <span className="text-[11px] uppercase tracking-widest text-[#8b949e] font-semibold">Outdoor</span>
+        </label>
+      </div>
+    </>
+  )
+}
+
 const FIELD_COMPONENTS: Record<NodeType, React.ComponentType<FieldProps>> = {
   router:    RouterFields,
   switch:    SwitchFields,
@@ -332,6 +359,7 @@ const FIELD_COMPONENTS: Record<NodeType, React.ComponentType<FieldProps>> = {
   isp:       ISPFields,
   apwifi:    APWiFiFields,
   group:     GroupFields,
+  camera:    CameraFields,
 }
 
 // ─── PropertiesPanel ──────────────────────────────────────────────────────────

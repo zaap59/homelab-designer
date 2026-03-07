@@ -21,9 +21,9 @@ export const ContainerNode = memo(function ContainerNode({
       <NodeBody>
         <NodeField label="Image"         value={data.image}   valueColor={T.pink} />
         <NodeField label="Container ID"  value={shortId}      valueColor={T.textDim} />
-        <NodeDivider />
+        {(data.image || shortId) && data.ports && <NodeDivider />}
         <NodeField label="Exposed Ports" value={data.ports} />
-        <NodeDivider />
+        {(data.image || shortId || data.ports) && <NodeDivider />}
         <NodeField label="Network"       value={data.network} />
         <NodeTags>
           <NodeTag variant="pink">{data.runtime ?? 'Docker'}</NodeTag>

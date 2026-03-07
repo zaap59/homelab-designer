@@ -22,10 +22,10 @@ export const RouterNode = memo(function RouterNode({
       <NodeBody>
         <NodeField label="WAN IP"  value={data.wanIp} valueColor={T.cyan} />
         <NodeField label="LAN IP"  value={data.lanIp} />
-        <NodeDivider />
+        {(data.wanIp || data.lanIp) && (data.model || data.os) && <NodeDivider />}
         <NodeField label="Model"   value={data.model} />
         <NodeField label="OS"      value={data.os} />
-        <NodeDivider />
+        {(data.wanIp || data.lanIp || data.model || data.os) && <NodeDivider />}
         <NodeTags>
           <NodeTag variant="cyan">BGP</NodeTag>
           <NodeTag variant="green">NAT</NodeTag>

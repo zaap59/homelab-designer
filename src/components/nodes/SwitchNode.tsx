@@ -24,7 +24,7 @@ export const SwitchNode = memo(function SwitchNode({
       <NodeBody>
         <NodeField label="Mgmt IP" value={data.ip}    valueColor={T.cyan} />
         <NodeField label="Model"   value={data.model} />
-        <NodeDivider />
+        {(data.ip || data.model) && (data.vlan || data.speed) && <NodeDivider />}
         <NodeField label="VLANs"   value={data.vlan as string | undefined} />
         <NodeField label="Speed"   value={data.speed} valueColor={T.green} />
       </NodeBody>

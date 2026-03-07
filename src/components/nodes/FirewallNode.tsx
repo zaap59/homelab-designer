@@ -19,10 +19,10 @@ export const FirewallNode = memo(function FirewallNode({
       <NodeBody>
         <NodeField label="WAN"      value={data.wan ?? data.ip}  valueColor={T.cyan} />
         <NodeField label="LAN"      value={data.lan} />
-        <NodeDivider />
+        {((data.wan ?? data.ip) || data.lan) && (data.platform || data.rules) && <NodeDivider />}
         <NodeField label="Platform" value={data.platform} />
         <NodeField label="Rules"    value={data.rules}    valueColor={T.amber} />
-        <NodeDivider />
+        {((data.wan ?? data.ip) || data.lan || data.platform || data.rules) && <NodeDivider />}
         <NodeTags>
           <NodeTag variant="cyan">IDS/IPS</NodeTag>
           <NodeTag variant="amber">VPN</NodeTag>

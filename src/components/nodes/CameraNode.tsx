@@ -20,10 +20,10 @@ export const CameraNode = memo(function CameraNode({
       <NodeBody>
         <NodeField label="IP"         value={data.ip}         valueColor={T.cyan} />
         <NodeField label="Location"   value={data.location} />
-        <NodeDivider />
+        {(data.ip || data.location) && (data.resolution || data.protocol) && <NodeDivider />}
         <NodeField label="Resolution" value={data.resolution} valueColor={T.orange} />
         <NodeField label="Protocol"   value={data.protocol} />
-        <NodeDivider />
+        {(data.ip || data.location || data.resolution || data.protocol) && <NodeDivider />}
         <NodeTags>
           {data.ptz      && <NodeTag variant="amber">PTZ</NodeTag>}
           {data.outdoor

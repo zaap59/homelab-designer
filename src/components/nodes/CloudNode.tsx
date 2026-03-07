@@ -27,7 +27,7 @@ export const CloudNode = memo(function CloudNode({
       <NodeBody>
         <NodeField label="Provider" value={data.provider} valueColor={pColor} />
         <NodeField label="Service"  value={data.service} />
-        <NodeDivider />
+        {(data.provider || data.service) && (data.region || data.provider) && <NodeDivider />}
         <NodeField label="Région"   value={data.region}   valueColor={T.cyan} />
         <NodeTags>
           {data.provider && <NodeTag variant="blue">{data.provider}</NodeTag>}
