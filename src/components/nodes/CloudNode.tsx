@@ -20,7 +20,7 @@ const PROVIDER_COLORS: Record<string, string> = {
 export const CloudNode = memo(function CloudNode({
   id, data, selected,
 }: NodeProps<Node<CloudData>>) {
-  const pColor = (data.provider && PROVIDER_COLORS[data.provider]) ?? '#40c4ff'
+  const pColor = (data.provider && PROVIDER_COLORS[data.provider]) ?? T.cyan
   return (
     <NodeBase id={id} nodeType="cloud" label={data.label} selected={selected}
       icon={<CloudIcon color={pColor} />} iconColor={pColor} width={234}>

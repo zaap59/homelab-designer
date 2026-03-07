@@ -25,8 +25,6 @@ export interface NodeBaseProps {
   status?: 'online' | 'offline' | 'warn'
   /** Node width in px */
   width?: number
-  /** Extra top border color (e.g. purple for Container) */
-  borderTopColor?: string
   /** Body + port section content */
   children?: React.ReactNode
   /** Custom handles rendered outside the inner visual div (direct children of root) */
@@ -46,7 +44,6 @@ export const NodeBase = memo(function NodeBase({
   iconColor,
   status = 'online',
   width = 221,
-  borderTopColor,
   children,
   handles,
   customHandles = false,
@@ -71,127 +68,57 @@ export const NodeBase = memo(function NodeBase({
   return (
     <div
       className="hlab-node hlab-node-enter"
-      style={{
-        position: 'relative',
-        overflow: 'visible',
-        width,
-        fontFamily: "'JetBrains Mono', monospace",
-        cursor: 'pointer',
-      }}
+      style={{ width }}
       onDoubleClick={startEdit}
       onClick={() => setSelectedNode(id)}
     >
-      {/* ── Inner visual card (border + bg live here, NOT on root) ─────────── */}
-      <div style={{
-        borderRadius: 6,
-        border: `1px solid ${selected ? T.cyan : T.border}`,
-        background: T.bg2,
-        overflow: 'hidden',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        boxShadow: selected
-          ? `0 0 0 1px ${T.cyan}, 0 0 20px rgba(0,229,255,0.4), 0 8px 32px rgba(0,0,0,0.5)`
-          : undefined,
-      }}>
-      {/* ── Accent strip ────────────────────────────────────────────────────── */}
-      <div style={{
-        height: 3,
-        background: borderTopColor ?? iconColor,
-        opacity: selected ? 1 : 0.75,
-        transition: 'opacity 0.2s',
-      }} />
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '10px 12px 8px',
-        borderBottom: `1px solid ${T.border}`,
-      }}>
-        {/* 22×22 icon */}
-        <div style={{
-          width: 22, height: 22, flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: iconColor,
-        }}>
-          {icon}
+      {/* ── Inner visual card ─────────────────────────────────────────────── */}
+      <div className="hlab-node-card" data-selected={selected || undefined}>
+
+        {/* Header */}
+        <div className="hlab-node-header">
+          <div className="hlab-node-icon" style={{ color: iconColor }}>{icon}</div>
+          <div className="hlab-node-info">
+            {meta?.label && <div className="hlab-node-type">{meta.label}</div>}
+            {editing ? (
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') confirmEdit()
+                  if (e.key === 'Escape') cancelEdit()
+                }}
+                className="hlab-node-edit-input nodrag"
+              />
+            ) : (
+              <div className="hlab-node-label">{label}</div>
+            )}
+          </div>
+          <div className="hlab-node-status" style={statusStyle} />
         </div>
 
-        {/* Type + name */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {meta?.label && (
-            <div style={{
-              fontSize: 8, letterSpacing: '2px', textTransform: 'uppercase',
-              color: T.textDim, lineHeight: 1, marginBottom: 2,
-            }}>
-              {meta.label}
-            </div>
-          )}
-          {editing ? (
-            <input
-              autoFocus
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') confirmEdit()
-                if (e.key === 'Escape') cancelEdit()
-              }}
-              style={{
-                width: '100%', background: T.bg3, border: `1px solid ${T.cyan}`,
-                borderRadius: 3, padding: '1px 4px', fontSize: 11,
-                color: T.textBright, outline: 'none', fontFamily: 'inherit',
-              }}
-              className="nodrag"
-            />
-          ) : (
-            <div style={{
-              fontFamily: "'Rajdhani', sans-serif",
-              fontSize: 14, fontWeight: 600, color: T.textBright,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              lineHeight: 1.2,
-            }}>
-              {label}
-            </div>
-          )}
-        </div>
-
-        {/* Status dot */}
-        <div style={{
-          width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-          ...statusStyle,
-        }} />
+        {/* Body / children */}
+        {children}
       </div>
 
-      {/* ── Body / children ────────────────────────────────────────────────── */}
-      {children}
-
-      </div>{/* end inner visual card */}
-
-      {/* ── Action bar (hover) — anchored to root div ──────────────────────── */}
+      {/* ── Action bar (hover) ────────────────────────────────────────────── */}
       {!editing && (
         <div className="group" style={{ position: 'absolute', top: 6, right: 6, zIndex: 20 }}>
-          <div className="hlab-action-bar" style={{
-            display: 'flex', alignItems: 'center', gap: 2,
-            background: T.bg3, border: `1px solid ${T.border}`,
-            borderRadius: 4, padding: '2px 4px', opacity: 0,
-          }}>
+          <div className="hlab-action-bar hlab-node-bar" style={{ opacity: 0 }}>
             <button
               title="Renommer"
               onClick={(e) => { e.stopPropagation(); startEdit() }}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 18, height: 18, borderRadius: 3, border: 'none',
-                background: 'transparent', color: T.textDim, cursor: 'pointer',
-              }}
-              className="nodrag hlab-action-btn"
+              className="nodrag hlab-action-btn hlab-node-bar-btn"
+              style={{ color: T.textDim }}
             >
               <Pencil size={9} />
             </button>
             <button
               title="Supprimer"
               onClick={(e) => { e.stopPropagation(); deleteNode(id) }}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 18, height: 18, borderRadius: 3, border: 'none',
-                background: 'transparent', color: T.textDim, cursor: 'pointer',
-              }}
-              className="nodrag hlab-action-btn hlab-action-btn--danger"
+              className="nodrag hlab-action-btn hlab-action-btn--danger hlab-node-bar-btn"
+              style={{ color: T.textDim }}
             >
               <Trash2 size={9} />
             </button>
@@ -201,24 +128,11 @@ export const NodeBase = memo(function NodeBase({
 
       {/* ── Edit confirm bar ──────────────────────────────────────────────── */}
       {editing && (
-        <div style={{
-          position: 'absolute', top: 6, right: 6, zIndex: 20,
-          display: 'flex', alignItems: 'center', gap: 2,
-          background: T.bg3, border: `1px solid ${T.border}`,
-          borderRadius: 4, padding: '2px 4px',
-        }}>
-          <button onClick={confirmEdit} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 18, height: 18, borderRadius: 3, border: 'none',
-            background: 'transparent', color: '#3fb950', cursor: 'pointer',
-          }} className="nodrag">
+        <div className="hlab-node-bar">
+          <button onClick={confirmEdit} className="nodrag hlab-node-bar-btn" style={{ color: '#3fb950' }}>
             <Check size={9} />
           </button>
-          <button onClick={cancelEdit} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 18, height: 18, borderRadius: 3, border: 'none',
-            background: 'transparent', color: '#f85149', cursor: 'pointer',
-          }} className="nodrag">
+          <button onClick={cancelEdit} className="nodrag hlab-node-bar-btn" style={{ color: '#f85149' }}>
             <X size={9} />
           </button>
         </div>

@@ -17,9 +17,9 @@ export const APWiFiNode = memo(function APWiFiNode({
 }: NodeProps<Node<APWiFiData>>) {
   return (
     <NodeBase id={id} nodeType="apwifi" label={data.label} selected={selected}
-      icon={<APWiFiIcon />} iconColor="#69ff47" width={215}>
+      icon={<APWiFiIcon />} iconColor={T.green} width={215}>
       <NodeBody>
-        <NodeField label="SSID"      value={data.ssid}      valueColor="#69ff47" />
+        <NodeField label="SSID"      value={data.ssid}      valueColor={T.green} />
         <NodeField label="Bande"     value={data.band} />
         <NodeDivider />
         <NodeField label="Fréquence" value={data.frequency} />

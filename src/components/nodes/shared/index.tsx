@@ -12,6 +12,8 @@ export const T = {
   green:        '#39ff14',
   amber:        '#ffaa00',
   red:          '#ff3860',
+  orange:       '#f97316',
+  magenta:      '#e040fb',
   purple:       '#a855f7',
   pink:         '#f472b6',
   blue:         '#60a5fa',
@@ -22,12 +24,14 @@ export const T = {
 
 // ─── Tag variant styles ───────────────────────────────────────────────────────
 
-export type TagVariant = 'cyan' | 'green' | 'amber' | 'purple' | 'pink' | 'blue'
+export type TagVariant = 'cyan' | 'green' | 'amber' | 'red' | 'orange' | 'purple' | 'pink' | 'blue'
 
 const TAG_CSS: Record<TagVariant, CSSProperties> = {
   cyan:   { background: 'rgba(0,229,255,0.15)',   color: '#00e5ff', border: '1px solid rgba(0,229,255,0.2)' },
   green:  { background: 'rgba(57,255,20,0.12)',   color: '#39ff14', border: '1px solid rgba(57,255,20,0.2)' },
   amber:  { background: 'rgba(255,170,0,0.12)',   color: '#ffaa00', border: '1px solid rgba(255,170,0,0.2)' },
+  red:    { background: 'rgba(255,56,96,0.12)',   color: '#ff3860', border: '1px solid rgba(255,56,96,0.2)' },
+  orange: { background: 'rgba(249,115,22,0.12)',  color: '#f97316', border: '1px solid rgba(249,115,22,0.25)' },
   purple: { background: 'rgba(168,85,247,0.10)',  color: '#a855f7', border: '1px solid rgba(168,85,247,0.25)' },
   pink:   { background: 'rgba(244,114,182,0.10)', color: '#f472b6', border: '1px solid rgba(244,114,182,0.25)' },
   blue:   { background: 'rgba(96,165,250,0.10)',  color: '#60a5fa', border: '1px solid rgba(96,165,250,0.25)' },
@@ -40,17 +44,12 @@ export function NodeField({
 }: { label: string; value?: string | null; valueColor?: string }) {
   if (!value) return null
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-      <span style={{
-        fontSize: 8, letterSpacing: '1.5px', textTransform: 'uppercase',
-        color: T.textDim, lineHeight: 1,
-      }}>
-        {label}
-      </span>
-      <span style={{
-        fontSize: 11, color: valueColor ?? T.text, lineHeight: 1.4,
-        fontFamily: "'JetBrains Mono', monospace",
-      }}>
+    <div className="hlab-node-field">
+      <span className="hlab-node-field-label">{label}</span>
+      <span
+        className="hlab-node-field-value"
+        style={valueColor ? { '--field-color': valueColor } as CSSProperties : undefined}
+      >
         {value}
       </span>
     </div>
@@ -60,33 +59,20 @@ export function NodeField({
 // ─── NodeBody ─────────────────────────────────────────────────────────────────
 
 export function NodeBody({ children }: { children: ReactNode }) {
-  return (
-    <div style={{
-      padding: '8px 12px 10px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 4,
-    }}>
-      {children}
-    </div>
-  )
+  return <div className="hlab-node-body">{children}</div>
 }
 
 // ─── NodeDivider ──────────────────────────────────────────────────────────────
 
 export function NodeDivider() {
-  return <div style={{ height: 1, background: T.border, margin: '4px 0' }} />
+  return <div className="hlab-node-divider" />
 }
 
 // ─── NodeTag ──────────────────────────────────────────────────────────────────
 
 export function NodeTag({ children, variant }: { children: ReactNode; variant: TagVariant }) {
   return (
-    <span style={{
-      fontSize: 9, padding: '1px 6px', borderRadius: 3,
-      letterSpacing: '0.5px', fontFamily: "'JetBrains Mono', monospace",
-      ...TAG_CSS[variant],
-    }}>
+    <span className="hlab-node-tag" style={TAG_CSS[variant]}>
       {children}
     </span>
   )
@@ -95,17 +81,13 @@ export function NodeTag({ children, variant }: { children: ReactNode; variant: T
 // ─── NodeTags ─────────────────────────────────────────────────────────────────
 
 export function NodeTags({ children }: { children: ReactNode }) {
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
-      {children}
-    </div>
-  )
+  return <div className="hlab-node-tags">{children}</div>
 }
 
 // ─── Status dot colors ────────────────────────────────────────────────────────
 
 export const STATUS_STYLE: Record<string, CSSProperties> = {
-  online:  { background: '#39ff14', boxShadow: '0 0 6px #39ff14' },
-  offline: { background: '#444444' },
-  warn:    { background: '#ffaa00', boxShadow: '0 0 6px #ffaa00' },
+  online:  { background: '#3fb950' },
+  offline: { background: '#484f58' },
+  warn:    { background: '#d29922' },
 }

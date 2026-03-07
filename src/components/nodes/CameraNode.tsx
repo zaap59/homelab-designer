@@ -16,12 +16,12 @@ export const CameraNode = memo(function CameraNode({
 }: NodeProps<Node<CameraData>>) {
   return (
     <NodeBase id={id} nodeType="camera" label={data.label} selected={selected}
-      icon={<CameraIcon />} iconColor="#f97316" width={221}>
+      icon={<CameraIcon />} iconColor={T.orange} width={221}>
       <NodeBody>
         <NodeField label="IP"         value={data.ip}         valueColor={T.cyan} />
         <NodeField label="Location"   value={data.location} />
         <NodeDivider />
-        <NodeField label="Resolution" value={data.resolution} valueColor="#f97316" />
+        <NodeField label="Resolution" value={data.resolution} valueColor={T.orange} />
         <NodeField label="Protocol"   value={data.protocol} />
         <NodeDivider />
         <NodeTags>

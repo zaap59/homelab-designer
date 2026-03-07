@@ -17,7 +17,7 @@ export const ContainerNode = memo(function ContainerNode({
   const shortId = (data.containerId ?? '').substring(0, 8) || undefined
   return (
     <NodeBase id={id} nodeType="container" label={data.label} selected={selected}
-      icon={<ContainerIcon />} iconColor={T.pink} width={221} borderTopColor={T.purple}>
+      icon={<ContainerIcon />} iconColor={T.pink} width={221}>
       <NodeBody>
         <NodeField label="Image"         value={data.image}   valueColor={T.pink} />
         <NodeField label="Container ID"  value={shortId}      valueColor={T.textDim} />

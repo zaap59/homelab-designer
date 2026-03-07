@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import {
   ReactFlow,
   Controls,
@@ -9,9 +9,11 @@ import {
 } from '@xyflow/react'
 import { useStore } from '@/store/useStore'
 import { nodeTypes } from '@/components/nodes'
-import { edgeTypes, EdgeEditModal } from '@/components/edges'
+import { edgeTypes } from '@/components/edges'
 import type { NodeType } from '@/types'
 import { NODE_META } from '@/types'
+
+/* ── SVG markers for directed edges ────────────────────────────────────────── */
 
 function SvgDefs() {
   return (
@@ -24,6 +26,8 @@ function SvgDefs() {
     </svg>
   )
 }
+
+/* ── Placeholder when canvas is empty ──────────────────────────────────────── */
 
 function EmptyState() {
   return (
@@ -45,7 +49,16 @@ function EmptyState() {
   )
 }
 
-function CanvasInner() {
+/* ── Default edge options (stable reference) ──────────────────────────────── */
+
+const DEFAULT_EDGE_OPTIONS = { type: 'hlab', data: { edgeType: 'ethernet' } } as const
+const SNAP_GRID: [number, number] = [16, 16]
+const FIT_VIEW_OPTIONS = { padding: 0.3 } as const
+const PAN_ON_DRAG: number[] = [1, 2]
+
+/* ── Canvas ────────────────────────────────────────────────────────────────── */
+
+export function Canvas() {
   const nodes           = useStore((s) => s.nodes)
   const edges           = useStore((s) => s.edges)
   const onNodesChange   = useStore((s) => s.onNodesChange)
@@ -64,23 +77,29 @@ function CanvasInner() {
   const [isDragOver, setIsDragOver] = useState(false)
   const { screenToFlowPosition } = useReactFlow()
 
+  /* ── Callbacks ─────────────────────────────────────────────────────────── */
+
   const onNodeClick: NodeMouseHandler = useCallback((_e, node) => setSelectedNode(node.id), [setSelectedNode])
   const onEdgeClick: EdgeMouseHandler = useCallback((_e, edge) => setSelectedEdge(edge.id), [setSelectedEdge])
-  const onPaneClick  = useCallback(() => { setSelectedNode(null); setSelectedEdge(null) }, [setSelectedNode, setSelectedEdge])
+  const onPaneClick = useCallback(() => { setSelectedNode(null); setSelectedEdge(null) }, [setSelectedNode, setSelectedEdge])
+
+  /* ── Keyboard shortcuts ────────────────────────────────────────────────── */
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const meta = e.metaKey || e.ctrlKey
       const tag  = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
-      if (e.key === 'Escape')                        { setSelectedNode(null); setSelectedEdge(null) }
+      if (e.key === 'Escape')                          { setSelectedNode(null); setSelectedEdge(null) }
       if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected()
-      if (meta && e.key === 'c')                     { e.preventDefault(); copySelected() }
-      if (meta && e.key === 'v')                     { e.preventDefault(); paste() }
+      if (meta && e.key === 'c')                       { e.preventDefault(); copySelected() }
+      if (meta && e.key === 'v')                       { e.preventDefault(); paste() }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [setSelectedNode, setSelectedEdge, deleteSelected, copySelected, paste])
+
+  /* ── Drag & drop from sidebar ──────────────────────────────────────────── */
 
   const onDragOver  = useCallback((e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; setIsDragOver(true) }, [])
   const onDragLeave = useCallback(() => setIsDragOver(false), [])
@@ -91,56 +110,71 @@ function CanvasInner() {
     addNode(nodeType, screenToFlowPosition({ x: e.clientX, y: e.clientY }))
   }, [screenToFlowPosition, addNode])
 
+  /* ── Minimap node color ────────────────────────────────────────────────── */
+
+  const minimapNodeColor = useCallback(
+    (node: { data: Record<string, unknown> }) =>
+      NODE_META[(node.data as { nodeType?: NodeType })?.nodeType ?? 'router']?.color ?? '#30363d',
+    [],
+  )
+
+  /* ── Minimap style (stable object) ─────────────────────────────────────── */
+
+  const minimapStyle = useMemo(() => ({
+    bottom: 12, right: 12, width: 140, height: 90, border: '1px solid #21262d',
+  }), [])
+
   return (
     <div ref={wrapperRef} className="flex-1 relative overflow-hidden hlab-canvas-bg"
       style={{ outline: isDragOver ? '2px inset rgba(0,229,255,0.3)' : 'none' }}
     >
       <SvgDefs />
       {nodes.length === 0 && <EmptyState />}
-      <EdgeEditModal />
 
       <ReactFlow
+        /* ── Data ─── */
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        /* ── Interaction ─── */
         onNodeClick={onNodeClick}
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
+        /* ── Types ─── */
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
+        /* ── Grid & viewport ─── */
         snapToGrid={snapToGrid}
-        snapGrid={[16, 16]}
+        snapGrid={SNAP_GRID}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={FIT_VIEW_OPTIONS}
+        minZoom={0.1}
+        maxZoom={4}
+        /* ── Controls ─── */
         multiSelectionKeyCode="Shift"
         selectionKeyCode="Shift"
         panOnScroll
-        panOnDrag={[1, 2]}
+        panOnDrag={PAN_ON_DRAG}
         zoomOnDoubleClick={false}
-        minZoom={0.1}
-        maxZoom={4}
         deleteKeyCode={null}
-        defaultEdgeOptions={{ type: 'hlab', data: { edgeType: 'ethernet' } }}
+        /* ── Theme ─── */
         proOptions={{ hideAttribution: true }}
         colorMode={theme}
       >
         <Controls style={{ bottom: 100, left: 12 }} showZoom={false} showFitView={false} />
         <MiniMap
-          style={{ bottom: 12, right: 12, width: 140, height: 90, border: '1px solid #21262d' }}
-          nodeColor={(node) => NODE_META[(node.data as { nodeType?: NodeType })?.nodeType ?? 'router']?.color ?? '#30363d'}
+          style={minimapStyle}
+          nodeColor={minimapNodeColor}
           maskColor="rgba(8,12,16,0.75)"
           pannable zoomable
         />
       </ReactFlow>
     </div>
   )
-}
-
-export function Canvas() {
-  return <CanvasInner />
 }

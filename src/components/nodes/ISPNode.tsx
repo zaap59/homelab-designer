@@ -15,9 +15,9 @@ export const ISPNode = memo(function ISPNode({
 }: NodeProps<Node<ISPData>>) {
   return (
     <NodeBase id={id} nodeType="isp" label={data.label} selected={selected}
-      icon={<ISPIcon />} iconColor="#e040fb" width={221}>
+      icon={<ISPIcon />} iconColor={T.magenta} width={221}>
       <NodeBody>
-        <NodeField label="ASN"    value={data.asn}    valueColor="#e040fb" />
+        <NodeField label="ASN"    value={data.asn}    valueColor={T.magenta} />
         <NodeField label="Uplink" value={data.uplink} />
         <NodeDivider />
         <NodeField label="IP"     value={data.ip}     valueColor={T.cyan} />

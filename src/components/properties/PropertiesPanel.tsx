@@ -74,20 +74,16 @@ function RouterFields({ data, update }: FieldProps) {
 }
 
 function SwitchFields({ data, update }: FieldProps) {
-  const rj45Count = (data.rj45Count as number) ?? 8
-  const sfpCount  = (data.sfpCount  as number) ?? 2
   return (
     <>
       <Input label="IP de management" value={data.ip ?? ""} placeholder="10.0.0.254"
         onChange={(e) => update({ ip: e.target.value })} />
+      <Input label="Modèle" value={data.model ?? ""} placeholder="Cisco Catalyst 2960"
+        onChange={(e) => update({ model: e.target.value })} />
       <Input label="VLAN tags" value={data.vlan ?? ""} placeholder="10,20,30"
         onChange={(e) => update({ vlan: e.target.value })} />
       <Input label="Vitesse" value={(data.speed as string) ?? ""} placeholder="1G"
         onChange={(e) => update({ speed: e.target.value })} />
-      <PortSpinner label="Ports RJ45" value={rj45Count} min={1} max={48}
-        onChange={(v) => update({ rj45Count: v, connectedPorts: [] })} />
-      <PortSpinner label="Ports SFP" value={sfpCount} min={0} max={8}
-        onChange={(v) => update({ sfpCount: v, connectedPorts: [] })} />
     </>
   )
 }

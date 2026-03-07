@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getBezierPath,
+  getSmoothStepPath,
   type EdgeProps,
   type Edge,
 } from '@xyflow/react'
@@ -26,44 +26,44 @@ export function HLabEdgeComponent({
   const meta     = EDGE_META[edgeType]
   const isActive = selected || selectedEdgeId === id
 
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX, sourceY, sourcePosition,
     targetX, targetY, targetPosition,
+    borderRadius: 6,
   })
 
   const handleClick = useCallback(() => setSelectedEdge(id), [id, setSelectedEdge])
-
-  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    setSelectedEdge(id)
-    window.dispatchEvent(new CustomEvent('hlab:edit-edge', { detail: { id } }))
-  }, [id, setSelectedEdge])
 
   const strokeColor = isActive ? '#ffffff' : meta.color
   const label = data?.label || data?.bandwidth || ''
 
   return (
     <>
+      {/* Wide transparent hit target */}
       <path
         d={edgePath}
         fill="none"
         stroke="transparent"
-        strokeWidth={16}
+        strokeWidth={18}
         style={{ cursor: 'pointer' }}
         onClick={handleClick}
-        onDoubleClick={handleDoubleClick}
       />
+
       <BaseEdge
         id={id}
         path={edgePath}
         style={{
           stroke: strokeColor,
-          strokeWidth: meta.strokeWidth,
+          strokeWidth: isActive ? meta.strokeWidth + 0.5 : meta.strokeWidth,
           strokeDasharray: meta.strokeDasharray,
-          transition: 'stroke 0.15s',
+          filter: isActive ? `drop-shadow(0 0 4px ${meta.color}80)` : undefined,
+          transition: 'stroke 0.15s, stroke-width 0.15s',
+          cursor: 'pointer',
         }}
         markerEnd={data?.directed ? 'url(#hlab-arrow)' : undefined}
+        onClick={handleClick}
       />
+
       {label && (
         <EdgeLabelRenderer>
           <div
@@ -75,18 +75,18 @@ export function HLabEdgeComponent({
             }}
             className="nopan"
             onClick={handleClick}
-            onDoubleClick={handleDoubleClick}
           >
             <span style={{
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: 9,
-              color: meta.color,
+              color: isActive ? '#ffffff' : meta.color,
               background: '#0d1117',
-              border: `1px solid ${meta.color}30`,
+              border: `1px solid ${meta.color}40`,
               borderRadius: 3,
               padding: '1px 5px',
               lineHeight: 1.6,
               whiteSpace: 'nowrap',
+              boxShadow: isActive ? `0 0 6px ${meta.color}50` : undefined,
             }}>
               {label}
             </span>

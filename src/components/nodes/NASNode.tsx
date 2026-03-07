@@ -27,11 +27,11 @@ export const NASNode = memo(function NASNode({
         <NodeField label="Capacity" value={data.capacity} valueColor={T.blue} />
         <NodeField label="Used"     value={data.used} />
         <NodeDivider />
-        <NodeTags>
-          <NodeTag variant="blue">NFS</NodeTag>
-          <NodeTag variant="blue">SMB</NodeTag>
-          {data.protocol?.includes('iSCSI') && <NodeTag variant="purple">iSCSI</NodeTag>}
-        </NodeTags>
+        {data.protocol && (
+          <NodeTags>
+            <NodeTag variant="blue">{data.protocol}</NodeTag>
+          </NodeTags>
+        )}
       </NodeBody>
     </NodeBase>
   )

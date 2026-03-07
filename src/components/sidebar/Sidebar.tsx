@@ -72,6 +72,18 @@ const NodeIcon = ({ type, color }: { type: NodeType; color: string }) => {
         <circle cx="12" cy="20" r="1" fill={color} stroke="none" />
       </svg>
     )
+    case "camera": return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M23 7l-7 5 7 5V7z" />
+        <rect x="1" y="5" width="15" height="14" rx="2" />
+        <circle cx="8.5" cy="12" r="3" />
+      </svg>
+    )
+    case "group": return (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" strokeDasharray="4 3" />
+      </svg>
+    )
   }
 }
 

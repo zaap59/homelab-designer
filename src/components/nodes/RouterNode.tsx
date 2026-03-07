@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { Handle, Position } from '@xyflow/react'
 import type { NodeProps, Node } from '@xyflow/react'
 import type { RouterData } from '@/types'
 import { NodeBase, NodeBody, NodeField, NodeDivider, NodeTag, NodeTags, T } from './NodeBase'
@@ -19,7 +18,7 @@ export const RouterNode = memo(function RouterNode({
 }: NodeProps<Node<RouterData>>) {
   return (
     <NodeBase id={id} nodeType="router" label={data.label} selected={selected}
-      icon={<RouterIcon />} iconColor={T.cyan} width={208} customHandles>
+      icon={<RouterIcon />} iconColor={T.cyan} width={208}>
       <NodeBody>
         <NodeField label="WAN IP"  value={data.wanIp} valueColor={T.cyan} />
         <NodeField label="LAN IP"  value={data.lanIp} />
@@ -33,12 +32,6 @@ export const RouterNode = memo(function RouterNode({
           <NodeTag variant="amber">DHCP</NodeTag>
         </NodeTags>
       </NodeBody>
-
-      {/* 4 standard handles */}
-      <Handle type="target" position={Position.Top}    id="top" />
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="source" position={Position.Right}  id="right" />
-      <Handle type="target" position={Position.Left}   id="left" />
     </NodeBase>
   )
 })

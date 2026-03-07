@@ -69,7 +69,7 @@ let _dragging = false
 const DEFAULT_LABELS: Record<NodeType, string> = {
   router: 'router-01', switch: 'sw-core-01', server: 'srv-01', vm: 'vm-01',
   container: 'nginx-01', firewall: 'fw-edge-01', nas: 'nas-01', cloud: 'cloud-01',
-  isp: 'isp-provider', apwifi: 'ap-wifi-01', group: 'VLAN 10',
+  isp: 'isp-provider', apwifi: 'ap-wifi-01', group: 'VLAN 10', camera: 'cam-01',
 }
 let _nc = 1
 const genId = (prefix = 'node') => `${prefix}-${Date.now()}-${_nc++}`
@@ -123,20 +123,6 @@ export const useStore = create<StoreState>((set, get) => ({
         s.edges,
       ) as HLabEdge[],
     }))
-    // Track connected ports on Switch / Router nodes
-    const trackPort = (nodeId: string | null, handleId: string | null | undefined) => {
-      if (!nodeId || !handleId?.startsWith('port-')) return
-      const portIdx = parseInt(handleId.split('-')[1], 10)
-      if (isNaN(portIdx)) return
-      const node = get().nodes.find((n) => n.id === nodeId)
-      if (!node) return
-      const existing: number[] = (node.data.connectedPorts as number[]) ?? []
-      if (!existing.includes(portIdx)) {
-        get().updateNodeData(nodeId, { connectedPorts: [...existing, portIdx] })
-      }
-    }
-    trackPort(connection.source, connection.sourceHandle)
-    trackPort(connection.target, connection.targetHandle)
   },
 
   // ── Node operations ───────────────────────────────────────────────────────
