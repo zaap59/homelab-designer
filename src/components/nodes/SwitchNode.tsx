@@ -35,19 +35,22 @@ export const SwitchNode = memo(function SwitchNode({
         type="target"
         position={Position.Top}
         id="uplink"
+        className={connected.has('uplink') ? 'hlab-handle-connected' : undefined}
         style={{ left: '50%', ...(connected.has('uplink') ? activeStyle : {}) }}
         title="Uplink"
       />
       {/* Data ports — bottom, distributed */}
       {Array.from({ length: downCount }, (_, i) => {
         const hid = `port-${i}`
+        const on = connected.has(hid)
         return (
           <Handle
             key={hid}
             type="source"
             position={Position.Bottom}
             id={hid}
-            style={{ left: `${((i + 0.5) / downCount) * 100}%`, ...(connected.has(hid) ? activeStyle : {}) }}
+            className={on ? 'hlab-handle-connected' : undefined}
+            style={{ left: `${((i + 0.5) / downCount) * 100}%`, ...(on ? activeStyle : {}) }}
             title={`Port ${i + 1}`}
           />
         )

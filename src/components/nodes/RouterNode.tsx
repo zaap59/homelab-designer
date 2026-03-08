@@ -34,19 +34,22 @@ export const RouterNode = memo(function RouterNode({
         type="target"
         position={Position.Top}
         id="wan"
+        className={connected.has('wan') ? 'hlab-handle-connected' : undefined}
         style={{ left: '50%', ...(connected.has('wan') ? activeStyle : {}) }}
         title="WAN"
       />
       {/* LAN ports — bottom, distributed */}
       {Array.from({ length: downCount }, (_, i) => {
         const hid = `lan-${i}`
+        const on = connected.has(hid)
         return (
           <Handle
             key={hid}
             type="source"
             position={Position.Bottom}
             id={hid}
-            style={{ left: `${((i + 0.5) / downCount) * 100}%`, ...(connected.has(hid) ? activeStyle : {}) }}
+            className={on ? 'hlab-handle-connected' : undefined}
+            style={{ left: `${((i + 0.5) / downCount) * 100}%`, ...(on ? activeStyle : {}) }}
             title={`LAN ${i + 1}`}
           />
         )

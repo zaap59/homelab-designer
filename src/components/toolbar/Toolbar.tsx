@@ -74,7 +74,7 @@ export function Toolbar() {
       // Hide handles during capture
       const style = document.createElement('style')
       style.id = 'hlab-export-hide'
-      style.textContent = '.react-flow__handle { display: none !important; }'
+      style.textContent = '.react-flow__handle:not(.hlab-handle-connected) { display: none !important; }'
       document.head.appendChild(style)
 
       const dataUrl = await toPng(viewport, {
